@@ -5,7 +5,7 @@ export const siteConfig: SiteConfig = {
   title: "Veysel Emre Yılmaz | Software Engineer",
   description:
     "Mid-Level Software Engineer specializing in the .NET ecosystem and Microservices architecture. Building scalable backend systems with Clean Architecture, CQRS, and DDD.",
-  url: "https://vemreyilmaz.netlify.app",
+  url: "https://vemreyilmaz.com",
   ogImage: "/images/og-image.png",
   email: "yilmazvemre@gmail.com",
   formspreeId: "YOUR_FORMSPREE_ID",
