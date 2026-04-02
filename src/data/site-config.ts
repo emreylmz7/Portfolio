@@ -10,4 +10,6 @@ export const siteConfig: SiteConfig = {
   email: "yilmazvemre@gmail.com",
   formspreeId: "mjgpeprz",
   resumeUrl: "/docs/Veysel-Emre-Yılmaz-Antalya.pdf",
+  umamiUrl: "http://161.97.91.104:3001",
+  umamiWebsiteId: "1b9d47ca-755a-4806-ac65-f575193f9503",
 };

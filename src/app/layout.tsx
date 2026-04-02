@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -76,6 +77,14 @@ export default function RootLayout({
             <ScrollToTop />
           </TooltipProvider>
         </ThemeProvider>
+        {siteConfig.umamiWebsiteId && (
+          <Script
+            async
+            src={`${siteConfig.umamiUrl}/script.js`}
+            data-website-id={siteConfig.umamiWebsiteId}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

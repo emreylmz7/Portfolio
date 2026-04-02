@@ -63,6 +63,8 @@ export interface SiteConfig {
   email: string;
   formspreeId: string;
   resumeUrl: string;
+  umamiUrl: string;
+  umamiWebsiteId: string;
 }
 
 // ── Navigation ───────────────────────────────────────
