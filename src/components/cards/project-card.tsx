@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink, GitFork } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,7 +43,12 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
 
           {/* Title */}
           <h3 className="mb-2 text-lg font-semibold tracking-tight">
-            {project.title}
+            <Link
+              href={`/projects/${project.slug}`}
+              className="transition-colors hover:text-primary"
+            >
+              {project.title}
+            </Link>
           </h3>
 
           {/* Description */}

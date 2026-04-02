@@ -1,0 +1,86 @@
+When I started building backend systems professionally, I quickly realized that the initial structure of a project determines how painful it becomes six months later. That's why I adopted Clean Architecture early — and it's been my go-to approach ever since.
+
+## The Problem with Traditional Layering
+
+Most .NET tutorials teach a simple three-layer architecture: Controller → Service → Repository. It works fine for small projects, but as the codebase grows, you end up with:
+
+- **Fat services** that mix business logic with infrastructure concerns
+- **Tight coupling** to Entity Framework, making unit testing nearly impossible
+- **Circular dependencies** between layers that should be independent
+
+## How Clean Architecture Solves This
+
+Clean Architecture inverts the dependency direction. Instead of business logic depending on the database, the database depends on the business logic. The core domain has zero external dependencies.
+
+```csharp
+// Domain Layer — pure business logic, no dependencies
+public class Order
+{
+    public Guid Id { get; private set; }
+    public OrderStatus Status { get; private set; }
+    public decimal TotalAmount { get; private set; }
+
+    public void Confirm()
+    {
+        if (Status != OrderStatus.Pending)
+            throw new DomainException("Only pending orders can be confirmed.");
+
+        Status = OrderStatus.Confirmed;
+    }
+}
+```
+
+The Application layer orchestrates use cases through commands and queries:
+
+```csharp
+// Application Layer — use case orchestration with MediatR
+public class ConfirmOrderCommandHandler : IRequestHandler<ConfirmOrderCommand>
+{
+    private readonly IOrderRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ConfirmOrderCommandHandler(
+        IOrderRepository repository,
+        IUnitOfWork unitOfWork)
+    {
+        _repository = repository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task Handle(
+        ConfirmOrderCommand request,
+        CancellationToken cancellationToken)
+    {
+        var order = await _repository.GetByIdAsync(request.OrderId);
+        order.Confirm();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+}
+```
+
+## My Go-To Project Structure
+
+Every new project I start follows this folder layout:
+
+```
+src/
+├── Domain/           # Entities, Value Objects, Domain Events
+├── Application/      # Commands, Queries, DTOs, Interfaces
+├── Infrastructure/   # EF Core, External APIs, File Storage
+└── Presentation/     # Controllers, Middleware, Filters
+```
+
+Each layer is a separate project in the solution, enforcing dependency rules at compile time. The Domain project references nothing. Application references only Domain. Infrastructure and Presentation reference Application.
+
+## The Result
+
+With this structure, I can:
+
+- **Write unit tests** for business logic without touching a database
+- **Swap infrastructure** (e.g., switch from SQL Server to PostgreSQL) without changing a single line of domain code
+- **Onboard new developers** faster because the structure is predictable and self-documenting
+- **Scale the codebase** by adding new features as isolated vertical slices
+
+## Conclusion
+
+Clean Architecture adds some initial setup time, but the payoff is massive. Every project I've built with this approach has been easier to maintain, test, and extend than the ones built without it. If you're working on anything beyond a simple CRUD API, I highly recommend giving it a try.

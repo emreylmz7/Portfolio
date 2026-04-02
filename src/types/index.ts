@@ -71,6 +71,18 @@ export interface NavItem {
   href: string;
 }
 
+// ── Blog Post ───────────────────────────────────────
+export interface BlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+  date: string;
+  tags: string[];
+  readingTime: string;
+  published: boolean;
+}
+
 // ── Contact Form ─────────────────────────────────────
 export interface ContactFormData {
   name: string;

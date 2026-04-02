@@ -1,39 +1,13 @@
 # Portfolio — Gelecekte Eklenebilecek Özellikler
 
-## Yüksek Öncelik
+## Tamamlanan
 
-### Blog / Notlar Bölümü
-- MDX ile teknik yazılar yazılabilir
-- SEO için çok değerli (organik trafik çeker)
-- `/blog` sayfası + `/blog/[slug]` detay sayfaları
-- Kod syntax highlighting (rehype-pretty-code)
-- Okuma süresi gösterimi
-
-### Proje Detay Sayfaları
-- `/projects/[slug]` dinamik route
-- longDescription, tüm görseller, karşılaşılan problemler ve çözümler
-- Proje mimarisi açıklaması
-- Screenshot galerisi
-
-### Gerçek Proje Screenshot'ları
-- GitHub OG image'ları generic görünüyor
-- Her proje için gerçek ekran görüntüleri ekle
-- `public/images/projects/` klasörüne koy
-
-### Formspree Entegrasyonu
-- Contact formu şu an dummy
-- https://formspree.io'dan ücretsiz hesap aç
-- Form ID'yi `src/data/site-config.ts` → `formspreeId` alanına yaz
-
-### Sitemap + robots.txt
-- Arama motorları için gerekli
-- `src/app/sitemap.ts` ve `src/app/robots.ts` dosyaları oluştur
-- Next.js file convention ile otomatik üretilir
-
-### Open Graph Görseli
-- Sosyal medyada paylaşıldığında görünen görsel
-- 1200x630px tasarla
-- `public/images/og-image.png` olarak kaydet
+- ~~Formspree Entegrasyonu~~ — Contact formu aktif (`mjgpeprz`)
+- ~~Proje Detay Sayfaları~~ — `/projects/[slug]` dinamik route + SEO metadata
+- ~~Gerçek Proje Screenshot'ları~~ — 12 proje için gerçek görseller eklendi
+- ~~Sitemap + robots.txt~~ — Static dosyalar + proje URL'leri eklendi
+- ~~Open Graph Görseli~~ — `public/images/og-image.png` eklendi
+- ~~Blog / Notlar Bölümü~~ — MDX blog, rehype-pretty-code syntax highlighting, Medium tarzı listeleme, cover image desteği
 
 ---
 

@@ -8,6 +8,6 @@ export const siteConfig: SiteConfig = {
   url: "https://vemreyilmaz.com",
   ogImage: "/images/og-image.png",
   email: "yilmazvemre@gmail.com",
-  formspreeId: "YOUR_FORMSPREE_ID",
+  formspreeId: "mjgpeprz",
   resumeUrl: "/docs/Veysel-Emre-Yılmaz-Antalya.pdf",
 };

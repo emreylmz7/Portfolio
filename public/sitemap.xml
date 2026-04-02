@@ -9,11 +9,67 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://vemreyilmaz.com/blog</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/blog/clean-architecture-dotnet</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://vemreyilmaz.com/about</loc>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://vemreyilmaz.com/contact</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/hi-travel-booking</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/ecommerce-microservices</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/clean-architecture-setup</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/rabbitmq-order-app</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/erp-app-server</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/car-booking-app</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/elasticsearch-blog</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/iot-thermal-monitor</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/ai-quiz-app</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/hotel-app</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/job-application-app</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/projects/medical-dictionary</loc>
     <priority>0.6</priority>
   </url>
 </urlset>
