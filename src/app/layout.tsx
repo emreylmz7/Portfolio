@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -68,6 +67,13 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          defer
+          src={`${siteConfig.umamiUrl}/script.js`}
+          data-website-id={siteConfig.umamiWebsiteId}
+        />
+      </head>
       <body className="flex min-h-screen flex-col bg-background text-foreground">
         <ThemeProvider>
           <TooltipProvider>
@@ -77,14 +83,6 @@ export default function RootLayout({
             <ScrollToTop />
           </TooltipProvider>
         </ThemeProvider>
-        {siteConfig.umamiWebsiteId && (
-          <Script
-            async
-            src={`${siteConfig.umamiUrl}/script.js`}
-            data-website-id={siteConfig.umamiWebsiteId}
-            strategy="afterInteractive"
-          />
-        )}
       </body>
     </html>
   );
