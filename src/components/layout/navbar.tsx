@@ -39,10 +39,15 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300",
-        scrolled
-          ? "border-b border-border/50 bg-background/80 shadow-sm backdrop-blur-xl"
-          : "bg-transparent"
+        "fixed top-0 z-50 w-full",
+        open
+          ? "bg-background"
+          : cn(
+              "transition-all duration-300",
+              scrolled
+                ? "border-b border-border/50 bg-background/80 shadow-sm backdrop-blur-xl"
+                : "bg-transparent"
+            )
       )}
     >
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -128,11 +133,11 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 top-16 z-40 bg-background/95 backdrop-blur-lg md:hidden"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 top-16 z-40 bg-background md:hidden"
           >
             <nav className="flex h-full flex-col justify-between px-8 pb-12 pt-8">
               {/* Links */}

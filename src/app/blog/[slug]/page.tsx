@@ -57,11 +57,47 @@ export default async function BlogPostPage({
     day: "numeric",
   });
 
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description,
+      image: `https://vemreyilmaz.com${post.image}`,
+      datePublished: post.date,
+      author: {
+        "@type": "Person",
+        name: "Veysel Emre Yılmaz",
+        url: "https://vemreyilmaz.com",
+      },
+      publisher: {
+        "@type": "Person",
+        name: "Veysel Emre Yılmaz",
+      },
+      mainEntityOfPage: `https://vemreyilmaz.com/blog/${slug}`,
+      keywords: post.tags.join(", "),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://vemreyilmaz.com" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://vemreyilmaz.com/blog" },
+        { "@type": "ListItem", position: 3, name: post.title, item: `https://vemreyilmaz.com/blog/${slug}` },
+      ],
+    },
+  ];
+
   return (
-    <section className="py-10 sm:py-14 md:py-20">
-      <Container>
-        <div className="mx-auto max-w-3xl px-1 sm:px-0">
-          {/* Back link */}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <section className="py-10 sm:py-14 md:py-20">
+        <Container>
+          <div className="mx-auto max-w-3xl px-1 sm:px-0">
+            {/* Back link */}
           <Link
             href="/blog"
             className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:mb-8"
@@ -116,5 +152,6 @@ export default async function BlogPostPage({
         </div>
       </Container>
     </section>
+    </>
   );
 }

@@ -79,6 +79,28 @@ export default function RootLayout({
           src={`${siteConfig.umamiUrl}/script.js`}
           data-website-id={siteConfig.umamiWebsiteId}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: "Veysel Emre Yılmaz",
+              jobTitle: "Software Engineer",
+              url: "https://vemreyilmaz.com",
+              image: "https://vemreyilmaz.com/images/profile.png",
+              email: "yilmazvemre@gmail.com",
+              sameAs: [
+                "https://github.com/emreylmz7",
+                "https://linkedin.com/in/veysel-emre-yilmaz",
+              ],
+              knowsAbout: [
+                ".NET", "C#", "Microservices", "Clean Architecture",
+                "CQRS", "Docker", "Redis", "Elasticsearch",
+              ],
+            }),
+          }}
+        />
       </head>
       <body className="flex min-h-screen flex-col bg-background text-foreground">
         <ThemeProvider>
