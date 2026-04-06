@@ -14,6 +14,7 @@ export const sectionIds = {
   skills: "skills",
   projects: "projects",
   experience: "experience",
+  github: "github",
   contact: "contact",
 } as const;
 

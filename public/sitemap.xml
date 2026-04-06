@@ -17,6 +17,22 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://vemreyilmaz.com/blog/cqrs-pattern-dotnet-guide</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/blog/docker-dotnet-microservices</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/blog/rabbitmq-event-driven-dotnet</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://vemreyilmaz.com/blog/redis-elasticsearch-api-performance</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://vemreyilmaz.com/about</loc>
     <priority>0.7</priority>
   </url>

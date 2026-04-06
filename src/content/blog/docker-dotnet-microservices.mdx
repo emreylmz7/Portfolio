@@ -1,0 +1,165 @@
+Every microservices project I've worked on runs on Docker. It solves the "works on my machine" problem, makes deployments reproducible, and lets you scale individual services independently. Here's my practical approach to containerizing .NET microservices.
+
+## Why Docker for Microservices?
+
+When you have multiple services — an order service, a payment service, a notification service — each with its own dependencies and runtime requirements, Docker gives you:
+
+- **Isolation** — each service runs in its own container with its own dependencies
+- **Consistency** — the same image runs in development, staging, and production
+- **Scalability** — scale the payment service to 5 instances while keeping notification at 1
+- **Easy local development** — `docker compose up` and everything is running
+
+## The Dockerfile: Multi-Stage Build
+
+A well-structured Dockerfile for .NET uses multi-stage builds to keep the final image small:
+
+```dockerfile
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy csproj files first for layer caching
+COPY ["src/OrderService.API/OrderService.API.csproj", "OrderService.API/"]
+COPY ["src/OrderService.Application/OrderService.Application.csproj", "OrderService.Application/"]
+COPY ["src/OrderService.Domain/OrderService.Domain.csproj", "OrderService.Domain/"]
+COPY ["src/OrderService.Infrastructure/OrderService.Infrastructure.csproj", "OrderService.Infrastructure/"]
+RUN dotnet restore "OrderService.API/OrderService.API.csproj"
+
+# Copy everything and build
+COPY src/ .
+RUN dotnet publish "OrderService.API/OrderService.API.csproj" \
+    -c Release -o /app/publish --no-restore
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "OrderService.API.dll"]
+```
+
+Key optimizations:
+- **Copy `.csproj` files first** — Docker caches the restore step, so unchanged dependencies don't re-download
+- **Alpine base image** — ~100MB instead of ~200MB for the full Debian image
+- **No SDK in runtime** — only the ASP.NET runtime, reducing attack surface
+
+## Docker Compose for Local Development
+
+With multiple services, Docker Compose orchestrates everything:
+
+```yaml
+services:
+  order-service:
+    build: ./src/OrderService
+    ports:
+      - "5001:8080"
+    environment:
+      - ConnectionStrings__Database=Server=db;Database=Orders;User=sa;Password=Strong@Pass1;TrustServerCertificate=true
+      - RabbitMQ__Host=rabbitmq
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build: ./src/PaymentService
+    ports:
+      - "5002:8080"
+    environment:
+      - ConnectionStrings__Database=Server=db;Database=Payments;User=sa;Password=Strong@Pass1;TrustServerCertificate=true
+      - RabbitMQ__Host=rabbitmq
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Strong@Pass1
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Strong@Pass1" -C -Q "SELECT 1"
+      interval: 10s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      retries: 5
+```
+
+One command — `docker compose up` — and you have a full microservices environment with SQL Server and RabbitMQ.
+
+## Health Checks and Dependencies
+
+Notice the `depends_on` with `condition: service_healthy`. This prevents services from starting before their dependencies are ready. Without this, your API would crash on startup trying to connect to a database that's still initializing.
+
+In your .NET service, add a health check endpoint:
+
+```csharp
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString)
+    .AddRabbitMQ(rabbitConnectionString);
+
+app.MapHealthChecks("/health");
+```
+
+## Environment-Specific Configuration
+
+Docker makes it easy to swap configurations per environment. In .NET, environment variables override `appsettings.json`:
+
+```csharp
+// appsettings.json — defaults for development
+{
+  "RabbitMQ": {
+    "Host": "localhost",
+    "Port": 5672
+  }
+}
+
+// In Docker, override with environment variables:
+// RabbitMQ__Host=rabbitmq
+// RabbitMQ__Port=5672
+```
+
+The double underscore (`__`) maps to the JSON nesting. No code changes needed between environments.
+
+## CI/CD Pipeline
+
+In our Azure DevOps pipeline, every push triggers:
+
+1. **Build** each service's Docker image
+2. **Run tests** inside a container (same environment as production)
+3. **Push images** to a container registry
+4. **Deploy** to the target environment
+
+```yaml
+- task: Docker@2
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    containerRegistry: $(dockerRegistryConnection)
+    tags: |
+      $(Build.BuildId)
+      latest
+```
+
+## Lessons from Production
+
+After running Docker in production across multiple projects, here's what I've learned:
+
+1. **Always use specific image tags** in production, never `latest`. Pin your base images to avoid surprise breaking changes.
+2. **Log to stdout/stderr**, not to files. Docker captures container logs automatically, and your orchestrator can forward them.
+3. **Keep images small.** Every megabyte matters when you're pulling images across a network during deployment.
+4. **Use `.dockerignore`** to exclude `bin/`, `obj/`, `.git/`, and other unnecessary files from the build context.
+
+Docker isn't just a deployment tool — it's a development tool that makes microservices manageable from day one.

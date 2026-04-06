@@ -1,0 +1,116 @@
+Slow APIs kill user experience. At Hi Travel, we were handling 10,000+ daily users and our booking search endpoint was taking over 2 seconds to respond. That's an eternity when someone's trying to book a hotel. Here's how I brought it down to under 200ms using Redis and Elasticsearch.
+
+## The Problem: SQL Queries Don't Scale for Search
+
+Our initial setup was simple — a MSSQL database with full-text search. It worked fine with 1,000 listings, but once we hit 50,000+ tours and hotels, things got painful:
+
+- **Complex filter queries** (date range + location + price + amenities) were hitting multiple JOINs
+- **Full-text search** on descriptions was slow and inaccurate
+- **Every request hit the database** directly, even for identical searches seconds apart
+
+## Step 1: Elasticsearch for Search
+
+Elasticsearch is built for exactly this kind of problem. Instead of forcing SQL to do text search, I moved all searchable data into an Elasticsearch index.
+
+```csharp
+public class TourSearchService : ITourSearchService
+{
+    private readonly IElasticClient _elastic;
+
+    public async Task<SearchResult<TourDto>> SearchAsync(
+        TourSearchQuery query,
+        CancellationToken ct)
+    {
+        var response = await _elastic.SearchAsync<TourDocument>(s => s
+            .Index("tours")
+            .Query(q => q
+                .Bool(b => b
+                    .Must(
+                        m => m.MultiMatch(mm => mm
+                            .Fields(f => f
+                                .Field(t => t.Title, 3)
+                                .Field(t => t.Description))
+                            .Query(query.SearchTerm)
+                            .Fuzziness(Fuzziness.Auto)),
+                        m => m.DateRange(r => r
+                            .Field(t => t.AvailableFrom)
+                            .LessThanOrEquals(query.CheckIn)),
+                        m => m.Range(r => r
+                            .Field(t => t.Price)
+                            .LessThanOrEquals(query.MaxPrice))))), ct);
+
+        return MapToResult(response);
+    }
+}
+```
+
+Key decisions:
+- **Boosted title matches** (weight 3x) so exact name matches rank higher
+- **Fuzzy matching** handles typos automatically
+- **Combined filters** in a single query instead of multiple database round trips
+
+Result: Search went from ~2s to ~80ms.
+
+## Step 2: Redis for Caching
+
+Not every request needs to hit Elasticsearch. Popular searches (like "Antalya hotels" or "Istanbul tours") get repeated hundreds of times per hour. Redis caches these results.
+
+```csharp
+public class CachedSearchService : ITourSearchService
+{
+    private readonly ITourSearchService _inner;
+    private readonly IDistributedCache _cache;
+
+    public async Task<SearchResult<TourDto>> SearchAsync(
+        TourSearchQuery query,
+        CancellationToken ct)
+    {
+        var cacheKey = $"search:{query.ToHashKey()}";
+
+        var cached = await _cache.GetStringAsync(cacheKey, ct);
+        if (cached is not null)
+            return JsonSerializer.Deserialize<SearchResult<TourDto>>(cached)!;
+
+        var result = await _inner.SearchAsync(query, ct);
+
+        await _cache.SetStringAsync(cacheKey,
+            JsonSerializer.Serialize(result),
+            new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            }, ct);
+
+        return result;
+    }
+}
+```
+
+I used the **decorator pattern** here — the cached service wraps the real search service. The controller doesn't know or care about caching.
+
+## Step 3: Cache Invalidation Strategy
+
+The hardest part of caching is knowing when to invalidate. My approach:
+
+- **Time-based expiration** (5 minutes) for search results — acceptable staleness for listings
+- **Event-based invalidation** for critical data — when a booking is made, the specific listing cache is cleared immediately
+- **Tag-based grouping** — all caches for a specific region can be cleared when a new tour is added there
+
+## The Numbers
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Average response time | 2,100ms | 180ms |
+| P95 response time | 4,500ms | 350ms |
+| Database queries per search | 5-8 | 0 (cache hit) or 1 |
+| Conversion rate | Baseline | +35% improvement |
+
+The 35% conversion improvement wasn't just about speed — faster search means users explore more options, compare more listings, and ultimately book with more confidence.
+
+## Lessons Learned
+
+1. **Don't optimize prematurely**, but don't ignore performance either. We waited until real users were affected before adding Redis/Elasticsearch.
+2. **Cache at the right layer.** Caching too close to the database misses the point. Caching at the service layer captures the full computation.
+3. **Monitor cache hit rates.** A cache that's never hit is wasted memory. We track hit/miss ratios in our metrics dashboard.
+4. **Elasticsearch is not a database replacement.** We keep MSSQL as the source of truth and sync to Elasticsearch asynchronously.
+
+If your .NET API is struggling with search performance, the Redis + Elasticsearch combination is battle-tested and well worth the setup time.

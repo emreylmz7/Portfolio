@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Veysel Emre Yılmaz — Blog</title>
+    <link>https://vemreyilmaz.com/blog</link>
+    <description>Technical articles on .NET, Clean Architecture, microservices, and software engineering.</description>
+    <language>en</language>
+    <atom:link href="https://vemreyilmaz.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>How I Reduced API Response Times to Under 200ms with Redis and Elasticsearch</title>
+      <link>https://vemreyilmaz.com/blog/redis-elasticsearch-api-performance</link>
+      <guid>https://vemreyilmaz.com/blog/redis-elasticsearch-api-performance</guid>
+      <pubDate>Mon, 06 Apr 2026 00:00:00 GMT</pubDate>
+      <description>A real-world case study on optimizing a travel booking platform's search performance using Redis caching and Elasticsearch indexing.</description>
+    </item>
+    <item>
+      <title>Event-Driven Architecture with RabbitMQ in .NET Microservices</title>
+      <link>https://vemreyilmaz.com/blog/rabbitmq-event-driven-dotnet</link>
+      <guid>https://vemreyilmaz.com/blog/rabbitmq-event-driven-dotnet</guid>
+      <pubDate>Sat, 04 Apr 2026 00:00:00 GMT</pubDate>
+      <description>How to decouple your microservices using RabbitMQ and MassTransit for reliable asynchronous communication.</description>
+    </item>
+    <item>
+      <title>Dockerizing .NET Microservices: A Practical Guide</title>
+      <link>https://vemreyilmaz.com/blog/docker-dotnet-microservices</link>
+      <guid>https://vemreyilmaz.com/blog/docker-dotnet-microservices</guid>
+      <pubDate>Fri, 03 Apr 2026 00:00:00 GMT</pubDate>
+      <description>From multi-stage Dockerfiles to Docker Compose orchestration — everything you need to containerize your .NET microservices.</description>
+    </item>
+    <item>
+      <title>Getting Started with CQRS Pattern in .NET Using MediatR</title>
+      <link>https://vemreyilmaz.com/blog/cqrs-pattern-dotnet-guide</link>
+      <guid>https://vemreyilmaz.com/blog/cqrs-pattern-dotnet-guide</guid>
+      <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
+      <description>A step-by-step guide to implementing Command Query Responsibility Segregation with MediatR and FluentValidation.</description>
+    </item>
+    <item>
+      <title>Why I Use Clean Architecture in Every .NET Project</title>
+      <link>https://vemreyilmaz.com/blog/clean-architecture-dotnet</link>
+      <guid>https://vemreyilmaz.com/blog/clean-architecture-dotnet</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 GMT</pubDate>
+      <description>A practical guide to structuring .NET projects with Clean Architecture, CQRS, and MediatR for long-term maintainability.</description>
+    </item>
+  </channel>
+</rss>

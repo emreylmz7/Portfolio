@@ -1,0 +1,179 @@
+In a monolithic application, when a user places an order, everything happens in sequence: validate the order, charge the payment, send a confirmation email, update the inventory. If the email service is slow, the entire request is slow. RabbitMQ breaks this chain by enabling asynchronous, event-driven communication between services.
+
+## The Problem with Synchronous Communication
+
+Consider this typical flow in a monolith or tightly-coupled system:
+
+```csharp
+// Synchronous — everything blocks
+public async Task<Guid> PlaceOrder(PlaceOrderCommand command)
+{
+    var order = await _orderService.Create(command);
+    await _paymentService.Charge(order);        // 500ms
+    await _emailService.SendConfirmation(order); // 300ms
+    await _inventoryService.Reserve(order);      // 200ms
+    return order.Id;
+    // Total: ~1000ms, and if email fails, the whole thing fails
+}
+```
+
+Problems:
+- **Slow** — the user waits for all steps to complete
+- **Fragile** — if any downstream service fails, the order fails
+- **Coupled** — the order service knows about payments, emails, and inventory
+
+## Event-Driven with RabbitMQ
+
+With RabbitMQ, the order service publishes an event and moves on. Other services react independently:
+
+```csharp
+// The order service publishes and returns immediately
+public async Task<Guid> PlaceOrder(PlaceOrderCommand command)
+{
+    var order = await _orderService.Create(command);
+
+    await _messageBus.PublishAsync(new OrderPlacedEvent
+    {
+        OrderId = order.Id,
+        CustomerId = order.CustomerId,
+        Items = order.Items,
+        TotalAmount = order.TotalAmount
+    });
+
+    return order.Id;
+    // Total: ~50ms — user gets instant response
+}
+```
+
+Payment, email, and inventory services each subscribe to this event and process it at their own pace.
+
+## Setting Up RabbitMQ in .NET
+
+I use MassTransit as an abstraction over RabbitMQ. It handles serialization, retry policies, and error queues out of the box:
+
+```csharp
+// Program.cs — Producer setup
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("rabbitmq", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+```
+
+## Creating an Event Consumer
+
+Each service that cares about order events creates a consumer:
+
+```csharp
+// Payment Service — consumes OrderPlacedEvent
+public class OrderPlacedConsumer : IConsumer<OrderPlacedEvent>
+{
+    private readonly IPaymentGateway _gateway;
+    private readonly ILogger<OrderPlacedConsumer> _logger;
+
+    public OrderPlacedConsumer(
+        IPaymentGateway gateway,
+        ILogger<OrderPlacedConsumer> logger)
+    {
+        _gateway = gateway;
+        _logger = logger;
+    }
+
+    public async Task Consume(ConsumeContext<OrderPlacedEvent> context)
+    {
+        var message = context.Message;
+
+        _logger.LogInformation(
+            "Processing payment for order {OrderId}", message.OrderId);
+
+        var result = await _gateway.ChargeAsync(
+            message.CustomerId,
+            message.TotalAmount);
+
+        if (result.Success)
+        {
+            await context.Publish(new PaymentCompletedEvent
+            {
+                OrderId = message.OrderId,
+                TransactionId = result.TransactionId
+            });
+        }
+        else
+        {
+            await context.Publish(new PaymentFailedEvent
+            {
+                OrderId = message.OrderId,
+                Reason = result.ErrorMessage
+            });
+        }
+    }
+}
+```
+
+Notice how the payment service also publishes events. The email service can listen for `PaymentCompletedEvent` to send a receipt, and the order service can listen for `PaymentFailedEvent` to cancel the order. Each service only knows about the events it cares about.
+
+## Handling Failures with Retry and Dead Letter Queues
+
+Messages will fail sometimes — the payment gateway might be down, the database might be temporarily unavailable. MassTransit makes retry configuration simple:
+
+```csharp
+cfg.UseMessageRetry(r =>
+{
+    r.Intervals(
+        TimeSpan.FromSeconds(1),
+        TimeSpan.FromSeconds(5),
+        TimeSpan.FromSeconds(15));
+});
+```
+
+If all retries fail, the message moves to a **dead letter queue** (error queue) where you can inspect it, fix the issue, and replay it. No data is lost.
+
+## The Event Flow
+
+Here's what the full flow looks like:
+
+```
+User places order
+    → OrderService creates order
+    → Publishes: OrderPlacedEvent
+        → PaymentService charges card
+            → Publishes: PaymentCompletedEvent
+                → EmailService sends receipt
+                → InventoryService reserves stock
+        → (if fails) Publishes: PaymentFailedEvent
+            → OrderService cancels order
+            → EmailService sends failure notice
+```
+
+Each arrow is asynchronous. Each service can be deployed, scaled, and maintained independently.
+
+## Docker Compose for Local Development
+
+Running RabbitMQ locally is one Docker command:
+
+```yaml
+rabbitmq:
+  image: rabbitmq:3-management-alpine
+  ports:
+    - "5672:5672"    # AMQP protocol
+    - "15672:15672"  # Management UI
+```
+
+The management UI at `localhost:15672` lets you see queues, message rates, and consumer status — invaluable for debugging.
+
+## Key Takeaways
+
+1. **Publish events, not commands.** Events describe what happened (`OrderPlaced`), not what should happen (`ChargePayment`). This keeps services decoupled.
+2. **Design for idempotency.** Messages can be delivered more than once. Your consumers should handle duplicates gracefully.
+3. **Monitor your queues.** A growing queue means consumers can't keep up. Set up alerts before it becomes a problem.
+4. **Start simple.** You don't need a full event sourcing system. Even adding RabbitMQ to decouple just one slow operation (like email sending) is a huge win.
+
+Event-driven architecture with RabbitMQ transformed how I build microservices. The initial setup takes a few hours, but the flexibility and resilience it provides are worth every minute.
