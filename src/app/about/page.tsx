@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Code2, Lightbulb, Users, Zap, GraduationCap } from "lucide-react";
 import { Container } from "@/components/layout/container";
@@ -48,6 +49,16 @@ export default function AboutPage() {
         <Container>
           <div className="mx-auto max-w-3xl">
             {/* Bio */}
+            <div className="mb-10 flex justify-center sm:justify-start">
+              <Image
+                src="/images/profile.png"
+                alt={siteConfig.name}
+                width={160}
+                height={160}
+                className="rounded-full border-2 border-border/50"
+                priority
+              />
+            </div>
             <div className="space-y-5 text-muted-foreground">
               <p className="text-lg">
                 Hi, I&apos;m <span className="font-semibold text-foreground">{siteConfig.name}</span> — a

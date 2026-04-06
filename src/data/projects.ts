@@ -2,13 +2,26 @@ import type { Project } from "@/types";
 
 export const projects: Project[] = [
   {
+    slug: "capitalist-panel",
+    title: "Capitalist — ERP Finance Panel",
+    description:
+      "Advanced web-based reporting and finance dashboard fully integrated with Bay.t ERP for real-time profitability analysis and business intelligence.",
+    longDescription:
+      "A comprehensive finance and reporting panel built as a companion analytics layer on top of Bay.t ERP. Features real-time dashboard with revenue, orders, collections, and net cash flow metrics. Includes three-dimensional profitability analysis (product, customer, and invoice level), aging reports for overdue receivables, current account management, check/promissory note portfolio tracking, order monitoring, dispatch note integration, and sales rep performance tracking. All reports are exportable to PDF and Excel. Role-based access control ensures employees see only the data relevant to their role.",
+    image: "/images/projects/capitalist/1.PNG",
+    category: "fullstack",
+    tags: [".NET", "ERP", "Finance", "Real-time", "Reporting"],
+    featured: true,
+    date: "2025-06-01",
+  },
+  {
     slug: "hi-travel-booking",
     title: "Hi Travel Booking Platform",
     description:
       "Full-featured travel booking platform for tours, hotels, and villas across Turkey — handling 10,000+ daily users with .NET 8, CQRS, Redis, and Elasticsearch.",
     longDescription:
       "Built the core backend for hitravel.com.tr, a travel marketplace serving 10,000+ daily users. Implemented CQRS pattern, Redis caching, and Elasticsearch for sub-200ms API responses. Integrated Stripe/PayPal payments and automated CI/CD via Azure DevOps.",
-    image: "/images/projects/hitravel/1.png",
+    image: "/images/projects/hitravel/1.jpg",
     category: "fullstack",
     tags: [".NET 8", "CQRS", "Redis", "Elasticsearch", "Angular", "Azure DevOps"],
     liveUrl: "https://hitravel.com.tr/tr",
@@ -115,15 +128,16 @@ export const projects: Project[] = [
   },
   {
     slug: "ai-quiz-app",
-    title: "AI Quiz App (Quizfy)",
+    title: "Quizify — AI Quiz App",
     description:
-      "React-based quiz application powered by Gemini AI for dynamic quiz generation.",
+      "Interactive quiz app powered by Google Gemini 2.5 Flash AI with dynamic question generation, customizable topics, and performance analytics.",
     longDescription:
-      "An interactive quiz application built with React that uses Google's Gemini AI to dynamically generate questions on any topic. Users select a subject and difficulty level, and the AI creates unique, contextually relevant quiz questions in real time. Features score tracking, timed rounds, and a clean UI designed for an engaging learning experience.",
+      "An AI-powered quiz application built with React 18 that leverages Google Gemini 2.5 Flash to dynamically generate multiple-choice questions on any topic. Users can choose from suggested topics or enter custom ones, select the number of questions (5, 10, or 15), and get instant feedback on each answer. Features include circular score indicators, detailed result summaries with performance analytics, and a modern dark-themed UI with glassmorphism styling. Fully responsive for both mobile and desktop.",
     image: "/images/projects/quiz-app/mock03.fc140bf47495d99c7585.png",
     category: "frontend",
-    tags: ["React", "JavaScript", "Gemini AI", "CSS"],
+    tags: ["React 18", "Gemini AI", "Bootstrap 5", "JavaScript"],
     githubUrl: "https://github.com/emreylmz7/AIQuizApp",
+    liveUrl: "https://letquizify.netlify.app",
     featured: false,
     date: "2024-11-26",
   },
