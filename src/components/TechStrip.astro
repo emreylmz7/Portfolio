@@ -1,0 +1,231 @@
+---
+// Technologies I work with, as a slowly scrolling strip of monochrome logos
+// (Simple Icons, CC0). A logo takes its brand colour on hover.
+import {
+  siDotnet,
+  siNodedotjs,
+  siReact,
+  siNextdotjs,
+  siAngular,
+  siFlutter,
+  siFirebase,
+  siPostgresql,
+  siMongodb,
+  siRedis,
+  siElasticsearch,
+  siRabbitmq,
+  siDocker,
+  siKubernetes,
+  siStripe,
+  siFigma,
+  type SimpleIcon,
+} from 'simple-icons';
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+
+// Platforms and services a client recognises, grouped loosely:
+// web, mobile, data, infrastructure, then payments and design.
+const icons: SimpleIcon[] = [
+  siDotnet,
+  siNodedotjs,
+  siReact,
+  siNextdotjs,
+  siAngular,
+  siFlutter,
+  siFirebase,
+  siPostgresql,
+  siMongodb,
+  siRedis,
+  siElasticsearch,
+  siRabbitmq,
+  siDocker,
+  siKubernetes,
+  siStripe,
+  siFigma,
+];
+
+const items = icons.map((icon) => ({
+  name: icon.title,
+  path: icon.path,
+  // Black or white brand colours would vanish on one of the themes; use the text colour instead.
+  brand: ['000000', 'FFFFFF'].includes(icon.hex.toUpperCase()) ? 'var(--ink)' : `#${icon.hex}`,
+  // The .NET logo is the word itself.
+  wide: icon === siDotnet,
+}));
+---
+
+<div class="tech">
+  <p class="tech__label">{label}</p>
+  <div class="marquee">
+    <div class="marquee__track">
+      {
+        // The list is rendered twice so the loop has no seam; the copy is hidden from screen readers.
+        [false, true].map((copy) => (
+          <ul class="marquee__group" aria-hidden={copy ? 'true' : undefined}>
+            {items.map((item) => (
+              <li style={`--brand:${item.brand}`}>
+                <svg class:list={{ wide: item.wide }} viewBox="0 0 24 24" aria-hidden="true">
+                  <path d={item.path} />
+                </svg>
+                {/* The .NET logo is the word itself, so its name is only for screen readers. */}
+                <span class:list={{ 'sr-only': item.wide }}>{item.name}</span>
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .tech {
+    --gap: clamp(2.5rem, 5vw, 4rem);
+    display: grid;
+    /* minmax(0, …) stops the long strip from widening the page on phones. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  /* Label centred between two hairlines. */
+  .tech__label {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  .tech__label::before,
+  .tech__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .marquee {
+    min-width: 0;
+    overflow: hidden;
+    /* Keep the long track from ever adding to the page's scroll width. */
+    contain: paint;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 45s linear infinite;
+  }
+
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee__group {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    padding-right: var(--gap);
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.0625rem;
+    font-weight: 550;
+    letter-spacing: -0.01em;
+    color: var(--ink-3);
+    white-space: nowrap;
+    transition: color 0.25s;
+  }
+
+  svg {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentColor;
+    transition: color 0.25s;
+  }
+
+  /* The .NET mark is a wordmark: shown alone and larger, so it reads as the name. */
+  svg.wide {
+    width: 3rem;
+    height: 3rem;
+    margin-block: -0.75rem;
+  }
+
+  li:hover {
+    color: var(--ink);
+  }
+
+  li:hover svg {
+    color: var(--brand);
+  }
+
+  @media (max-width: 559px) {
+    .tech {
+      --gap: 2rem;
+      gap: 1.25rem;
+    }
+
+    .tech__label {
+      font-size: 0.8125rem;
+    }
+
+    li {
+      gap: 0.5rem;
+      font-size: 0.9375rem;
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    svg.wide {
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-block: -0.625rem;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* No motion: a still, centred list instead of the scrolling strip. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .marquee__track {
+      width: auto;
+      justify-content: center;
+      animation: none;
+    }
+
+    .marquee__group {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(0.9rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem);
+      padding-right: 0;
+    }
+
+    .marquee__group[aria-hidden] {
+      display: none;
+    }
+  }
+</style>

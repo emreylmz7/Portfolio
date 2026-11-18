@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects.
+# Blog posts exist in both languages: Turkish at /blog/:slug, English at /en/blog/:slug.
+# English used to live under no prefix and Turkish under /tr.
+/tr /  301
+/tr/* /:splat 301

@@ -1,0 +1,384 @@
+---
+import Base from '@/layouts/Base.astro';
+import Illustration from '@/components/Illustration.astro';
+import Icon from '@/components/Icon.astro';
+import { type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { site } from '@/data/site';
+import { services } from '@/data/services';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+const action = `https://formspree.io/f/${site.formspreeId}`;
+---
+
+<Base lang={lang} title={ui.contact.label} description={ui.contact.lead} noCta>
+  <div class="wrap">
+    <header class="page-head page-head--art">
+      <div>
+        <p class="label">{ui.contact.label}</p>
+        <h1>{ui.contact.title}</h1>
+        <p class="lead">{ui.contact.lead}</p>
+      </div>
+      <div class="page-head__art">
+        <Illustration name="message" />
+      </div>
+    </header>
+
+    <div class="layout">
+      <form class="form" action={action} method="POST" novalidate data-contact-form>
+        <!-- Honeypot: real visitors never see or fill this field. -->
+        <input class="trap" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="hidden" name="_language" value={lang} />
+
+        <div class="field">
+          <label for="name">{ui.contact.name}</label>
+          <input id="name" name="name" type="text" autocomplete="name" required />
+          <p class="field__error" data-error-for="name" hidden>{ui.contact.required}</p>
+        </div>
+
+        <div class="field">
+          <label for="email">{ui.contact.email}</label>
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required />
+          <p class="field__error" data-error-for="email" hidden>{ui.contact.invalidEmail}</p>
+        </div>
+
+        <div class="field field--full">
+          <label for="topic">{ui.contact.topic}</label>
+          <div class="select">
+            <select id="topic" name="topic">
+              {services.map((service) => <option>{service.title[lang]}</option>)}
+              <option>{ui.contact.topicOther}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field field--full">
+          <label for="message">{ui.contact.message}</label>
+          <textarea id="message" name="message" rows="7" placeholder={ui.contact.messagePlaceholder} required
+          ></textarea>
+          <p class="field__error" data-error-for="message" hidden>{ui.contact.required}</p>
+        </div>
+
+        <div class="form__foot field--full">
+          <button class="btn btn--primary" type="submit" data-submit data-sending={ui.contact.sending}>
+            <span data-submit-label>{ui.contact.send}</span>
+            <Icon name="arrow-right" />
+          </button>
+          <p class="form__status" role="status" aria-live="polite" data-status hidden></p>
+        </div>
+
+        <template data-msg-success>{ui.contact.success}</template>
+        <template data-msg-error>{ui.contact.error} {site.email}</template>
+      </form>
+
+      <aside class="direct">
+        <h2 class="label">{ui.contact.direct}</h2>
+        <ul>
+          <li>
+            <a href={`mailto:${site.email}`}>
+              <Icon name="mail" />
+              <span>
+                <span class="label">{ui.contact.email}</span>
+                {site.email}
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href={site.linkedin} target="_blank" rel="noopener">
+              <Icon name="linkedin" />
+              <span>
+                <span class="label" lang="en">LinkedIn</span>
+                veysel-emre-yilmaz
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href={site.github} target="_blank" rel="noopener">
+              <Icon name="github" />
+              <span>
+                <span class="label" lang="en">GitHub</span>
+                emreylmz7
+              </span>
+            </a>
+          </li>
+          <li>
+            <div>
+              <Icon name="pin" />
+              <span>
+                <span class="label">{ui.contact.location}</span>
+                {site.location[lang]}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const idleLabel = submitLabel.textContent ?? '';
+    const message = (key: 'success' | 'error') =>
+      form.querySelector<HTMLTemplateElement>(`[data-msg-${key}]`)?.content.textContent?.trim() ?? '';
+
+    const fields = Array.from(
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#name, #email, #message'),
+    );
+
+    const check = (field: HTMLInputElement | HTMLTextAreaElement) => {
+      const valid = field.checkValidity() && field.value.trim() !== '';
+      const error = form.querySelector<HTMLElement>(`[data-error-for="${field.name}"]`);
+      field.setAttribute('aria-invalid', String(!valid));
+      if (error) error.hidden = valid;
+      return valid;
+    };
+
+    fields.forEach((field) => {
+      field.addEventListener('input', () => {
+        if (field.getAttribute('aria-invalid') === 'true') check(field);
+      });
+    });
+
+    const show = (kind: 'success' | 'error') => {
+      status.textContent = message(kind);
+      status.dataset.kind = kind;
+      status.hidden = false;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.hidden = true;
+
+      const invalid = fields.filter((field) => !check(field));
+      if (invalid.length > 0) {
+        invalid[0].focus();
+        return;
+      }
+
+      submit.disabled = true;
+      submitLabel.textContent = submit.dataset.sending ?? idleLabel;
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+        if (!response.ok) throw new Error(`Form service responded with ${response.status}`);
+        form.reset();
+        show('success');
+      } catch (error) {
+        console.error('Contact form submission failed', error);
+        show('error');
+      } finally {
+        submit.disabled = false;
+        submitLabel.textContent = idleLabel;
+      }
+    });
+  }
+</script>
+
+<style>
+  .page-head h1 {
+    max-width: 14ch;
+  }
+
+  .layout {
+    display: grid;
+    gap: 3.5rem;
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .form {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  input:not(.trap),
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: 1rem;
+    line-height: 1.4;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  ::placeholder {
+    color: var(--ink-3);
+    opacity: 1;
+  }
+
+  input:not(.trap):hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--ink-3);
+  }
+
+  input:not(.trap):focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--danger) !important;
+  }
+
+  .select {
+    position: relative;
+  }
+
+  .select select {
+    appearance: none;
+    padding-right: 2.75rem;
+  }
+
+  .select::after {
+    content: '';
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1.5px solid var(--ink-2);
+    border-bottom: 1.5px solid var(--ink-2);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  .field__error {
+    font-size: 0.875rem;
+    color: var(--danger);
+  }
+
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .form__status {
+    flex: 1 1 16rem;
+    font-size: 0.9375rem;
+    font-weight: 550;
+  }
+
+  .form__status[data-kind='success'] {
+    color: var(--accent);
+  }
+
+  .form__status[data-kind='error'] {
+    color: var(--danger);
+  }
+
+  .direct ul {
+    margin-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .direct li > * {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+    font-weight: 550;
+    overflow-wrap: anywhere;
+  }
+
+  .direct li > * > span {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .direct :global(svg) {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--ink-3);
+    transition: color 0.2s;
+  }
+
+  .direct a {
+    transition: color 0.2s;
+  }
+
+  .direct a:hover,
+  .direct a:hover :global(svg) {
+    color: var(--accent);
+  }
+
+  @media (max-width: 639px) {
+    .form__foot .btn {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .layout {
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      gap: clamp(3rem, 7vw, 6rem);
+    }
+  }
+</style>

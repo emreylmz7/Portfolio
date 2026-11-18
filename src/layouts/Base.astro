@@ -1,0 +1,180 @@
+---
+import '@fontsource-variable/instrument-sans/index.css';
+import '@/styles/global.css';
+
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import Cta from '@/components/Cta.astro';
+import { href, barePath, otherLang, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { site } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+  /** Page title without the site name. Omit on the homepage. */
+  title?: string;
+  description?: string;
+  /** Absolute or site-relative URL of the social preview image. */
+  image?: string;
+  type?: 'website' | 'article';
+  /** False when the page exists in one language only (blog posts). */
+  translated?: boolean;
+  /** Where the language switch goes when the page is not translated. */
+  altHref?: string;
+  /** Hide the contact band above the footer. */
+  noCta?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  lang,
+  title,
+  description,
+  image = '/og.png',
+  type = 'website',
+  translated = true,
+  altHref,
+  noCta = false,
+  noindex = false,
+} = Astro.props;
+
+const ui = t(lang);
+const path = barePath(Astro.url.pathname);
+const fullTitle = title ? `${title} — ${site.name}` : ui.meta.title;
+const desc = description ?? ui.meta.description;
+const abs = (p: string) => new URL(p, site.url).href;
+const canonical = abs(href(lang, path));
+const ogImage = abs(image);
+const other = otherLang(lang);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <meta name="author" content={site.name} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {
+      translated && (
+        <>
+          <link rel="alternate" hreflang={lang} href={canonical} />
+          <link rel="alternate" hreflang={other} href={abs(href(other, path))} />
+          <link rel="alternate" hreflang="x-default" href={abs(href('en', path))} />
+        </>
+      )
+    }
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'tr' ? 'tr_TR' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={desc} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} — Writing`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#f6f5f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1512" media="(prefers-color-scheme: dark)" />
+
+    <!-- Set the theme before first paint so there is no flash. -->
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        var saved = null;
+        try {
+          saved = localStorage.getItem('theme');
+        } catch (e) {}
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.dataset.theme = saved || (dark ? 'dark' : 'light');
+      })();
+    </script>
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui.nav.skip}</a>
+    <Header lang={lang} altHref={altHref} />
+    <main id="main">
+      <slot />
+      {!noCta && <Cta lang={lang} />}
+    </main>
+    <Footer lang={lang} />
+
+    <script>
+      const root = document.documentElement;
+
+      // Theme toggle
+      document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try {
+            localStorage.setItem('theme', next);
+          } catch {
+            // Storage can be unavailable (private mode); the toggle still works for this page.
+          }
+        });
+      });
+
+      // Header: border once the page scrolls, and the mobile menu
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const menu = document.getElementById('mobile-menu');
+
+      if (header) {
+        const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      }
+
+      if (header && menuBtn && menu) {
+        const setOpen = (open: boolean) => {
+          menu.hidden = !open;
+          header.classList.toggle('is-open', open);
+          menuBtn.setAttribute('aria-expanded', String(open));
+          document.body.style.overflow = open ? 'hidden' : '';
+        };
+        menuBtn.addEventListener('click', () => setOpen(!header.classList.contains('is-open')));
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !menu.hidden) {
+            setOpen(false);
+            menuBtn.focus();
+          }
+        });
+        window.matchMedia('(min-width: 960px)').addEventListener('change', (e) => {
+          if (e.matches) setOpen(false);
+        });
+      }
+
+      // Scroll reveal
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+        );
+        targets.forEach((el) => io.observe(el));
+      } else {
+        targets.forEach((el) => el.classList.add('is-in'));
+      }
+    </script>
+  </body>
+</html>

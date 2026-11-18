@@ -1,0 +1,547 @@
+---
+// Line illustrations drawn with the site's colour tokens, so they follow the
+// light and dark themes. Purely decorative.
+interface Props {
+  name: 'system' | 'windows' | 'message' | 'writing' | 'mobile' | 'website' | 'dashboard' | 'store' | 'integration' | 'support';
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+---
+
+<svg class:list={['illo', className]} viewBox="0 0 360 260" aria-hidden="true" focusable="false">
+  {
+    name === 'system' && (
+      <>
+        <path class="flow" d="M134 96h42" />
+        <path class="flow" d="M96 196c44 0 54-64 80-74" />
+        <path class="flow" d="M246 92c20 0 22-40 42-40" />
+        <path class="flow" d="M246 106h40" />
+        <path class="flow" d="M246 120c20 0 22 48 42 48" />
+
+        <rect class="card" x="14" y="46" width="120" height="96" rx="10" />
+        <path class="rule" d="M14 66h120" />
+        <circle class="mute" cx="27" cy="56" r="3" />
+        <circle class="mute" cx="38" cy="56" r="3" />
+        <circle class="mute" cx="49" cy="56" r="3" />
+        <rect class="soft" x="26" y="78" width="42" height="52" rx="6" />
+        <rect class="mute" x="78" y="80" width="44" height="6" rx="3" />
+        <rect class="mute" x="78" y="94" width="32" height="6" rx="3" />
+        <rect class="mute" x="78" y="108" width="40" height="6" rx="3" />
+        <rect class="acc" x="78" y="121" width="26" height="9" rx="4.5" />
+
+        <rect class="card" x="54" y="160" width="42" height="74" rx="9" />
+        <rect class="soft" x="62" y="172" width="26" height="22" rx="4" />
+        <rect class="mute" x="62" y="202" width="26" height="5" rx="2.5" />
+        <rect class="mute" x="62" y="213" width="18" height="5" rx="2.5" />
+
+        <rect class="card card--accent" x="176" y="78" width="70" height="56" rx="12" />
+        <text x="211" y="110" text-anchor="middle">API</text>
+
+        <rect class="card" x="170" y="28" width="82" height="26" rx="13" />
+        <circle class="acc" cx="187" cy="41" r="4" />
+        <text class="small" x="197" y="45">200 OK</text>
+
+        <path class="card" d="M288 36v32c0 5 12 9 27 9s27-4 27-9V36" />
+        <ellipse class="card" cx="315" cy="36" rx="27" ry="9" />
+        <path class="rule" d="M288 52c0 5 12 9 27 9s27-4 27-9" />
+
+        <rect class="card" x="286" y="90" width="58" height="32" rx="9" />
+        <path class="aline" d="m317 97-7 9h6l-1 8 7-10h-6z" />
+
+        <rect class="soft" x="288" y="154" width="15" height="28" rx="5" />
+        <rect class="soft" x="308" y="154" width="15" height="28" rx="5" />
+        <rect class="soft" x="328" y="154" width="15" height="28" rx="5" opacity="0.5" />
+      </>
+    )
+  }
+
+  {
+    name === 'windows' && (
+      <>
+        <rect class="card" x="92" y="20" width="250" height="164" rx="12" />
+        <path class="rule" d="M92 42h250" />
+        <circle class="mute" cx="106" cy="31" r="3" />
+        <circle class="mute" cx="117" cy="31" r="3" />
+        <circle class="mute" cx="128" cy="31" r="3" />
+        <rect class="soft" x="200" y="82" width="18" height="80" rx="4" />
+        <rect class="soft" x="228" y="94" width="18" height="68" rx="4" />
+        <rect class="soft" x="256" y="66" width="18" height="96" rx="4" />
+        <rect class="soft" x="284" y="104" width="18" height="58" rx="4" />
+        <rect class="soft" x="312" y="88" width="18" height="74" rx="4" />
+        <path class="aline" d="m209 70 28 12 28-28 28 36 28-16" />
+        <circle class="acc" cx="265" cy="54" r="4" />
+        <rect class="mute" x="112" y="60" width="64" height="7" rx="3.5" />
+        <rect class="mute" x="112" y="76" width="44" height="7" rx="3.5" />
+
+        <rect class="card" x="18" y="104" width="178" height="138" rx="12" />
+        <path class="rule" d="M18 126h178" />
+        <circle class="mute" cx="32" cy="115" r="3" />
+        <circle class="mute" cx="43" cy="115" r="3" />
+        <circle class="mute" cx="54" cy="115" r="3" />
+        <rect class="soft" x="32" y="140" width="64" height="48" rx="6" />
+        <rect class="mute" x="108" y="142" width="72" height="7" rx="3.5" />
+        <rect class="mute" x="108" y="157" width="52" height="7" rx="3.5" />
+        <rect class="mute" x="108" y="172" width="62" height="7" rx="3.5" />
+        <rect class="mute" x="32" y="202" width="100" height="7" rx="3.5" />
+        <rect class="acc" x="32" y="218" width="44" height="12" rx="6" />
+        <rect class="card" x="84" y="218" width="44" height="12" rx="6" />
+
+        <circle class="card" cx="304" cy="214" r="30" />
+        <path class="aline" d="m295 205-9 9 9 9M313 205l9 9-9 9M307 201l-6 26" />
+      </>
+    )
+  }
+
+  {
+    name === 'message' && (
+      <>
+        <path class="flow" d="M298 100c-6 30-28 50-54 58" />
+
+        <path
+          class="card"
+          d="M40 44h170a14 14 0 0 1 14 14v62a14 14 0 0 1-14 14H88l-26 22v-22H40a14 14 0 0 1-14-14V58a14 14 0 0 1 14-14z"
+        />
+        <rect class="mute" x="48" y="68" width="128" height="8" rx="4" />
+        <rect class="mute" x="48" y="86" width="150" height="8" rx="4" />
+        <rect class="mute" x="48" y="104" width="92" height="8" rx="4" />
+
+        <path
+          class="soft"
+          d="M150 168h166a14 14 0 0 1 14 14v36a14 14 0 0 1-14 14h-10v20l-24-20H150a14 14 0 0 1-14-14v-36a14 14 0 0 1 14-14z"
+        />
+        <rect class="acc-o" x="158" y="188" width="118" height="8" rx="4" />
+        <rect class="acc-o" x="158" y="206" width="78" height="8" rx="4" />
+
+        <path class="card card--accent" d="M338 22 262 52l30 14 12 30z" />
+        <path class="aline" d="M292 66 338 22" />
+        <circle class="acc" cx="236" cy="30" r="3.5" />
+        <circle class="mute" cx="250" cy="16" r="2.5" />
+      </>
+    )
+  }
+
+  {
+    name === 'writing' && (
+      <>
+        <rect class="card" x="78" y="14" width="196" height="232" rx="12" />
+        <rect class="dark" x="100" y="38" width="112" height="10" rx="5" />
+        <rect class="mute" x="100" y="60" width="150" height="6" rx="3" />
+        <rect class="mute" x="100" y="74" width="132" height="6" rx="3" />
+        <rect class="mute" x="100" y="88" width="142" height="6" rx="3" />
+
+        <rect class="code" x="100" y="108" width="152" height="74" rx="8" />
+        <rect class="acc-o" x="112" y="122" width="46" height="6" rx="3" />
+        <rect class="dim" x="164" y="122" width="58" height="6" rx="3" />
+        <rect class="dim" x="124" y="138" width="80" height="6" rx="3" />
+        <rect class="acc-o" x="124" y="154" width="38" height="6" rx="3" />
+        <rect class="dim" x="168" y="154" width="50" height="6" rx="3" />
+        <rect class="dim" x="112" y="168" width="24" height="6" rx="3" />
+
+        <rect class="mute" x="100" y="198" width="150" height="6" rx="3" />
+        <rect class="mute" x="100" y="212" width="120" height="6" rx="3" />
+
+        <rect class="card" x="246" y="50" width="84" height="26" rx="13" />
+        <circle class="acc" cx="262" cy="63" r="4" />
+        <rect class="mute" x="272" y="60" width="44" height="6" rx="3" />
+        <rect class="card" x="22" y="150" width="80" height="26" rx="13" />
+        <circle class="acc" cx="38" cy="163" r="4" />
+        <rect class="mute" x="48" y="160" width="40" height="6" rx="3" />
+
+        <g transform="translate(300 146) rotate(32)">
+          <rect class="card" x="-8" y="0" width="16" height="72" rx="3" />
+          <path class="rule" d="M-8 14H8" />
+          <path class="card card--accent" d="M-8 72 0 90l8-18z" />
+        </g>
+      </>
+    )
+  }
+
+  {
+    name === 'mobile' && (
+      <>
+        <path class="flow" d="M208 196c16 0 24-14 38-22" />
+
+        {/* Second phone, behind: a list screen. */}
+        <rect class="card" x="192" y="40" width="100" height="196" rx="18" />
+        <rect class="mute" x="228" y="50" width="28" height="5" rx="2.5" />
+        <rect class="soft" x="204" y="68" width="76" height="44" rx="8" />
+        <rect class="soft" x="214" y="122" width="26" height="26" rx="6" />
+        <rect class="soft" x="246" y="122" width="26" height="26" rx="6" opacity="0.6" />
+        <rect class="mute" x="214" y="158" width="58" height="5" rx="2.5" />
+        <rect class="mute" x="214" y="170" width="42" height="5" rx="2.5" />
+
+        {/* Main phone: a small dashboard. */}
+        <rect class="card" x="96" y="18" width="112" height="228" rx="20" />
+        <rect class="mute" x="136" y="28" width="32" height="6" rx="3" />
+        <rect class="dark" x="110" y="48" width="56" height="8" rx="4" />
+        <rect class="soft" x="110" y="66" width="84" height="56" rx="9" />
+        <path class="aline" d="m120 108 14-12 12 7 14-16 12 9 12-11" />
+        <circle class="soft" cx="120" cy="142" r="8" />
+        <rect class="mute" x="134" y="137" width="50" height="5" rx="2.5" />
+        <rect class="mute" x="134" y="146" width="34" height="5" rx="2.5" />
+        <circle class="soft" cx="120" cy="170" r="8" />
+        <rect class="mute" x="134" y="165" width="46" height="5" rx="2.5" />
+        <rect class="mute" x="134" y="174" width="28" height="5" rx="2.5" />
+        <rect class="acc" x="110" y="200" width="84" height="18" rx="9" />
+        <rect class="mute" x="134" y="234" width="36" height="4" rx="2" />
+
+        {/* Notification sliding in from the left. */}
+        <rect class="card" x="16" y="62" width="112" height="42" rx="11" />
+        <rect class="soft" x="26" y="72" width="22" height="22" rx="6" />
+        <path class="aline" d="M32 79.5h10M32 85.5h6" />
+        <rect class="dark" x="56" y="74" width="46" height="6" rx="3" />
+        <rect class="mute" x="56" y="86" width="60" height="5" rx="2.5" />
+
+        {/* Payment confirmation on the right. */}
+        <rect class="card card--accent" x="246" y="150" width="100" height="44" rx="12" />
+        <circle class="soft" cx="268" cy="172" r="11" />
+        <path class="aline" d="m263 172 3.5 3.5 6.5-7" />
+        <rect class="dark" x="286" y="164" width="44" height="6" rx="3" />
+        <rect class="mute" x="286" y="176" width="32" height="5" rx="2.5" />
+
+        <circle class="acc" cx="330" cy="40" r="4" />
+        <circle class="mute" cx="314" cy="24" r="2.5" />
+      </>
+    )
+  }
+
+  {
+    name === 'website' && (
+      <>
+        {/* Browser window with a corporate home page. */}
+        <rect class="card" x="40" y="22" width="280" height="206" rx="14" />
+        <path class="rule" d="M40 46h280" />
+        <circle class="mute" cx="56" cy="34" r="3.5" />
+        <circle class="mute" cx="68" cy="34" r="3.5" />
+        <circle class="mute" cx="80" cy="34" r="3.5" />
+        <rect class="dark" x="58" y="60" width="38" height="8" rx="4" />
+        <rect class="mute" x="190" y="61" width="22" height="6" rx="3" />
+        <rect class="mute" x="220" y="61" width="22" height="6" rx="3" />
+        <rect class="mute" x="250" y="61" width="22" height="6" rx="3" />
+        <rect class="acc" x="280" y="59" width="22" height="10" rx="5" />
+
+        <rect class="soft" x="58" y="80" width="244" height="72" rx="10" />
+        <rect class="dark" x="74" y="98" width="104" height="9" rx="4.5" />
+        <rect class="mute" x="74" y="114" width="84" height="6" rx="3" />
+        <rect class="acc" x="74" y="130" width="46" height="12" rx="6" />
+        <rect class="card" x="206" y="90" width="82" height="52" rx="7" />
+        <path class="aline" d="m214 134 18-20 12 12 10-8 26 16" />
+        <circle class="acc-o" cx="270" cy="104" r="5" />
+
+        <rect class="card" x="58" y="166" width="76" height="46" rx="8" />
+        <circle class="soft" cx="72" cy="180" r="6" />
+        <rect class="mute" x="68" y="192" width="52" height="5" rx="2.5" />
+        <rect class="mute" x="68" y="201" width="36" height="5" rx="2.5" />
+        <rect class="card" x="142" y="166" width="76" height="46" rx="8" />
+        <circle class="soft" cx="156" cy="180" r="6" />
+        <rect class="mute" x="152" y="192" width="52" height="5" rx="2.5" />
+        <rect class="mute" x="152" y="201" width="36" height="5" rx="2.5" />
+        <rect class="card" x="226" y="166" width="76" height="46" rx="8" />
+        <circle class="soft" cx="240" cy="180" r="6" />
+        <rect class="mute" x="236" y="192" width="52" height="5" rx="2.5" />
+        <rect class="mute" x="236" y="201" width="36" height="5" rx="2.5" />
+
+        {/* Languages and SEO. */}
+        <rect class="card" x="6" y="132" width="72" height="28" rx="14" />
+        <text class="small" x="42" y="150" text-anchor="middle">TR · EN</text>
+        <rect class="card card--accent" x="270" y="6" width="80" height="30" rx="15" />
+        <circle class="acc" cx="287" cy="21" r="4.5" />
+        <text class="small" x="298" y="25">SEO</text>
+      </>
+    )
+  }
+
+  {
+    name === 'dashboard' && (
+      <>
+        {/* Admin panel: sidebar, figures, chart and a table. */}
+        <rect class="card" x="22" y="20" width="296" height="214" rx="14" />
+        <path class="rule" d="M84 20v214" />
+        <rect class="dark" x="36" y="36" width="30" height="8" rx="4" />
+        <rect class="soft" x="32" y="58" width="42" height="14" rx="7" />
+        <rect class="mute" x="38" y="84" width="30" height="5" rx="2.5" />
+        <rect class="mute" x="38" y="100" width="24" height="5" rx="2.5" />
+        <rect class="mute" x="38" y="116" width="30" height="5" rx="2.5" />
+        <rect class="mute" x="38" y="132" width="20" height="5" rx="2.5" />
+
+        <rect class="dark" x="100" y="36" width="64" height="8" rx="4" />
+        <rect class="card" x="242" y="32" width="60" height="16" rx="8" />
+        <rect class="card" x="100" y="58" width="62" height="40" rx="8" />
+        <rect class="mute" x="110" y="68" width="26" height="5" rx="2.5" />
+        <rect class="dark" x="110" y="80" width="38" height="8" rx="4" />
+        <rect class="card" x="170" y="58" width="62" height="40" rx="8" />
+        <rect class="mute" x="180" y="68" width="26" height="5" rx="2.5" />
+        <rect class="acc" x="180" y="80" width="34" height="8" rx="4" />
+        <rect class="card" x="240" y="58" width="62" height="40" rx="8" />
+        <rect class="mute" x="250" y="68" width="26" height="5" rx="2.5" />
+        <rect class="dark" x="250" y="80" width="42" height="8" rx="4" />
+
+        <rect class="card" x="100" y="108" width="202" height="70" rx="8" />
+        <rect class="soft" x="114" y="140" width="12" height="28" rx="3" />
+        <rect class="soft" x="134" y="130" width="12" height="38" rx="3" />
+        <rect class="soft" x="154" y="146" width="12" height="22" rx="3" />
+        <rect class="soft" x="174" y="122" width="12" height="46" rx="3" />
+        <rect class="soft" x="194" y="134" width="12" height="34" rx="3" />
+        <rect class="soft" x="214" y="120" width="12" height="48" rx="3" />
+        <rect class="soft" x="234" y="138" width="12" height="30" rx="3" />
+        <rect class="soft" x="254" y="126" width="12" height="42" rx="3" />
+        <rect class="soft" x="274" y="132" width="12" height="36" rx="3" />
+        <path class="aline" d="m120 136 20-10 20 8 20-16 20 8 20-14 20 10 20-12 20 6" />
+
+        <rect class="mute" x="100" y="192" width="70" height="6" rx="3" />
+        <rect class="mute" x="186" y="192" width="40" height="6" rx="3" />
+        <rect class="acc-o" x="262" y="190" width="40" height="10" rx="5" />
+        <rect class="mute" x="100" y="212" width="58" height="6" rx="3" />
+        <rect class="mute" x="186" y="212" width="48" height="6" rx="3" />
+        <rect class="soft" x="262" y="210" width="40" height="10" rx="5" />
+
+        {/* Roles and exports. */}
+        <rect class="card card--accent" x="262" y="2" width="90" height="30" rx="15" />
+        <circle class="soft" cx="279" cy="17" r="9" />
+        <path class="aline" d="M275.5 17.5h7v5h-7zM277 17.5V15a2 2 0 0 1 4 0v2.5" />
+        <rect class="mute" x="294" y="14" width="46" height="6" rx="3" />
+        <rect class="card" x="292" y="196" width="62" height="28" rx="14" />
+        <text class="small" x="323" y="214" text-anchor="middle">PDF</text>
+      </>
+    )
+  }
+
+  {
+    name === 'store' && (
+      <>
+        {/* Product grid. */}
+        <rect class="card" x="16" y="22" width="232" height="212" rx="14" />
+        <path class="rule" d="M16 46h232" />
+        <rect class="dark" x="30" y="30" width="34" height="8" rx="4" />
+        <rect class="card" x="150" y="28" width="84" height="12" rx="6" />
+        <rect class="card" x="30" y="58" width="98" height="78" rx="9" />
+        <rect class="soft" x="38" y="66" width="82" height="38" rx="6" />
+        <rect class="mute" x="38" y="112" width="52" height="5" rx="2.5" />
+        <rect class="dark" x="38" y="122" width="30" height="6" rx="3" />
+        <rect class="acc" x="100" y="118" width="20" height="12" rx="6" />
+        <rect class="card" x="136" y="58" width="98" height="78" rx="9" />
+        <rect class="soft" x="144" y="66" width="82" height="38" rx="6" />
+        <rect class="mute" x="144" y="112" width="52" height="5" rx="2.5" />
+        <rect class="dark" x="144" y="122" width="30" height="6" rx="3" />
+        <rect class="card" x="30" y="144" width="98" height="78" rx="9" />
+        <rect class="soft" x="38" y="152" width="82" height="38" rx="6" />
+        <rect class="mute" x="38" y="198" width="52" height="5" rx="2.5" />
+        <rect class="dark" x="38" y="208" width="30" height="6" rx="3" />
+        <rect class="acc" x="100" y="204" width="20" height="12" rx="6" />
+        <rect class="card" x="136" y="144" width="98" height="78" rx="9" />
+        <rect class="soft" x="144" y="152" width="82" height="38" rx="6" />
+        <rect class="mute" x="144" y="198" width="52" height="5" rx="2.5" />
+        <rect class="dark" x="144" y="208" width="30" height="6" rx="3" />
+
+        {/* Cart. */}
+        <rect class="card card--accent" x="208" y="60" width="138" height="128" rx="12" />
+        <rect class="dark" x="222" y="74" width="40" height="8" rx="4" />
+        <circle class="acc" cx="330" cy="78" r="6" />
+        <rect class="soft" x="222" y="94" width="22" height="22" rx="5" />
+        <rect class="mute" x="252" y="99" width="60" height="5" rx="2.5" />
+        <rect class="dark" x="252" y="108" width="28" height="5" rx="2.5" />
+        <rect class="soft" x="222" y="122" width="22" height="22" rx="5" />
+        <rect class="mute" x="252" y="127" width="52" height="5" rx="2.5" />
+        <rect class="dark" x="252" y="136" width="28" height="5" rx="2.5" />
+        <path class="rule" d="M222 154h110" />
+        <rect class="acc" x="222" y="162" width="110" height="16" rx="8" />
+
+        {/* Secure payment. */}
+        <rect class="card" x="230" y="202" width="116" height="30" rx="15" />
+        <path class="aline" d="M244.5 217.5h7v5h-7zM246 217.5V215a2 2 0 0 1 4 0v2.5" />
+        <text class="small" x="260" y="221">3D Secure</text>
+      </>
+    )
+  }
+
+  {
+    name === 'integration' && (
+      <>
+        {/* Systems connected through one hub. */}
+        <path class="flow" d="M112 62c24 0 26 40 38 50" />
+        <path class="flow" d="M112 198c24 0 26-40 38-50" />
+        <path class="flow" d="M248 62c-24 0-26 40-38 50" />
+        <path class="flow" d="M248 198c-24 0-26-40-38-50" />
+
+        <rect class="card card--accent" x="150" y="100" width="60" height="60" rx="16" />
+        <g transform="translate(162 112) scale(1.5)">
+          <path class="aline" vector-effect="non-scaling-stroke" d="m12 3 9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5" />
+        </g>
+
+        <rect class="card" x="20" y="40" width="92" height="44" rx="11" />
+        <rect class="soft" x="30" y="52" width="20" height="20" rx="5" />
+        <text x="60" y="67">ERP</text>
+        <rect class="card" x="20" y="176" width="92" height="44" rx="11" />
+        <rect class="soft" x="30" y="188" width="20" height="20" rx="5" />
+        <text x="60" y="203">CRM</text>
+        <rect class="card" x="248" y="40" width="92" height="44" rx="11" />
+        <rect class="soft" x="258" y="52" width="20" height="20" rx="5" />
+        <text x="288" y="67">ÜTS</text>
+        <rect class="card" x="248" y="176" width="92" height="44" rx="11" />
+        <rect class="soft" x="260" y="198" width="8" height="12" rx="2" />
+        <rect class="soft" x="272" y="190" width="8" height="20" rx="2" />
+        <rect class="soft" x="284" y="194" width="8" height="16" rx="2" />
+        <rect class="mute" x="300" y="191" width="30" height="5" rx="2.5" />
+        <rect class="mute" x="300" y="201" width="20" height="5" rx="2.5" />
+
+        <circle class="acc" cx="180" cy="34" r="4" />
+        <circle class="mute" cx="196" cy="22" r="2.5" />
+        <circle class="mute" cx="166" cy="234" r="2.5" />
+      </>
+    )
+  }
+
+  {
+    name === 'support' && (
+      <>
+        {/* Performance score. */}
+        <rect class="card" x="20" y="26" width="200" height="200" rx="16" />
+        <path class="track" d="M61.7 151.2A62 62 0 1 1 178.3 151.2" />
+        <path class="meter" d="M61.7 151.2A62 62 0 1 1 180.4 116.1" />
+        <text class="big" x="120" y="140" text-anchor="middle">98</text>
+        <rect class="mute" x="96" y="154" width="48" height="6" rx="3" />
+        <rect class="mute" x="40" y="196" width="60" height="6" rx="3" />
+        <rect class="acc-o" x="154" y="194" width="46" height="10" rx="5" />
+
+        {/* Change log. */}
+        <rect class="card" x="198" y="46" width="148" height="140" rx="12" />
+        <rect class="dark" x="212" y="60" width="54" height="8" rx="4" />
+        <circle class="soft" cx="220" cy="88" r="7" />
+        <path class="aline" d="m216.5 88 2.5 2.5 5-5" />
+        <rect class="mute" x="234" y="83" width="70" height="5" rx="2.5" />
+        <rect class="mute" x="234" y="91" width="46" height="4" rx="2" />
+        <circle class="soft" cx="220" cy="114" r="7" />
+        <path class="aline" d="m216.5 114 2.5 2.5 5-5" />
+        <rect class="mute" x="234" y="109" width="62" height="5" rx="2.5" />
+        <rect class="mute" x="234" y="117" width="40" height="4" rx="2" />
+        <circle class="soft" cx="220" cy="140" r="7" />
+        <path class="aline" d="m216.5 140 2.5 2.5 5-5" />
+        <rect class="mute" x="234" y="135" width="74" height="5" rx="2.5" />
+        <rect class="mute" x="234" y="143" width="50" height="4" rx="2" />
+        <circle class="soft" cx="220" cy="166" r="7" />
+        <rect class="mute" x="234" y="161" width="56" height="5" rx="2.5" />
+        <rect class="mute" x="234" y="169" width="36" height="4" rx="2" />
+
+        <rect class="card card--accent" x="150" y="210" width="110" height="30" rx="15" />
+        <circle class="acc" cx="167" cy="225" r="4.5" />
+        <text class="small" x="178" y="229">v2.4</text>
+      </>
+    )
+  }
+</svg>
+
+<style>
+  .illo {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .card {
+    fill: var(--illo-card, var(--surface));
+    stroke: var(--line);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  .card--accent {
+    stroke: var(--accent);
+  }
+
+  .rule {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1.5;
+  }
+
+  .soft {
+    fill: var(--accent-soft);
+  }
+
+  .mute {
+    fill: var(--line);
+  }
+
+  .dark {
+    fill: var(--ink-3);
+  }
+
+  .dim {
+    fill: var(--ink-3);
+    opacity: 0.35;
+  }
+
+  .code {
+    fill: var(--media);
+  }
+
+  .acc {
+    fill: var(--accent);
+  }
+
+  .acc-o {
+    fill: var(--accent);
+    opacity: 0.55;
+  }
+
+  .aline {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Dotted connectors that drift in the direction of the data flow. */
+  .flow {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-dasharray: 1 8;
+    animation: flow 1.8s linear infinite;
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -18;
+    }
+  }
+
+  text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 650;
+    fill: var(--ink-2);
+  }
+
+  text.small {
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+
+  text.big {
+    font-size: 34px;
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    fill: var(--ink);
+  }
+
+  /* Gauge */
+  .track,
+  .meter {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+  }
+
+  .track {
+    stroke: var(--line);
+  }
+
+  .meter {
+    stroke: var(--accent);
+  }
+</style>

@@ -1,0 +1,625 @@
+---
+import Base from '@/layouts/Base.astro';
+import Illustration from '@/components/Illustration.astro';
+import Icon from '@/components/Icon.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import Process from '@/components/Process.astro';
+import { href, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { services } from '@/data/services';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+
+const whyIcons = ['user', 'file', 'key', 'shield'] as const;
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: ui.services.faq.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<Base lang={lang} title={ui.services.title} description={ui.services.lead}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqLd)} />
+
+  <div class="wrap">
+    <header class="page-head page-head--art">
+      <div>
+        <p class="label">{ui.services.label}</p>
+        <h1>{ui.services.title}</h1>
+        <p class="lead">{ui.services.lead}</p>
+
+        <!-- Quick links to each service below. -->
+        <ul class="jump">
+          {
+            services.map((service) => (
+              <li>
+                <a href={`#${service.id}`}>
+                  <Icon name={service.icon} />
+                  {service.title[lang]}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="page-head__art">
+        <Illustration name="system" />
+      </div>
+    </header>
+
+    <!-- One block per service, each with its own illustration. -->
+    <div class="list">
+      {
+        services.map((service, i) => {
+          return (
+            <section class:list={['service', { 'service--flip': i % 2 === 1 }]} id={service.id} data-reveal>
+              <div class="service__text">
+                <div class="service__top">
+                  <span class="icon-tile">
+                    <Icon name={service.icon} />
+                  </span>
+                  <span class="service__num">{String(i + 1).padStart(2, '0')}</span>
+                </div>
+                <h2>{service.title[lang]}</h2>
+                <p class="service__long">{service.long[lang]}</p>
+
+                <h3 class="label">{ui.services.includes}</h3>
+                <ul class="includes">
+                  {service.includes[lang].map((item) => (
+                    <li>
+                      <span class="includes__mark">
+                        <Icon name="check" />
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div class="art">
+                <Illustration name={service.art} />
+              </div>
+            </section>
+          );
+        })
+      }
+    </div>
+  </div>
+
+  <!-- Working together -->
+  <section class="section why">
+    <div class="wrap">
+      <SectionHead label={ui.services.whyLabel} title={ui.services.whyTitle} />
+      <ul class="why__grid">
+        {
+          ui.services.why.map((item, i) => (
+            <li class="why__card" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+              <span class="icon-tile">
+                <Icon name={whyIcons[i] ?? 'check'} />
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <SectionHead label={ui.home.processLabel} title={ui.services.processTitle} />
+      <Process lang={lang} />
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section">
+    <div class="wrap faq">
+      <div class="faq__intro">
+        <SectionHead label={ui.services.faqLabel} title={ui.services.faqTitle} />
+        <p class="muted">{ui.services.faqText}</p>
+        <a class="arrow-link faq__link" href={href(lang, '/contact')}>
+          {ui.services.faqLink}
+          <Icon name="arrow-right" />
+        </a>
+      </div>
+      <div class="faq__list" data-reveal>
+        {
+          ui.services.faq.map((item, i) => (
+            <details open={i === 0}>
+              <summary>
+                {item.q}
+                <span class="faq__icon">
+                  <Icon name="plus" />
+                </span>
+              </summary>
+              <p>{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------- Jump links ---------- */
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  .jump a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+
+  .jump a:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+
+  .jump li {
+    flex: none;
+  }
+
+  .jump :global(svg) {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--accent);
+  }
+
+  /* Phones: one row that scrolls sideways instead of six stacked rows. */
+  @media (max-width: 639px) {
+    .jump {
+      flex-wrap: nowrap;
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .jump::-webkit-scrollbar {
+      display: none;
+    }
+
+    .jump a {
+      white-space: nowrap;
+    }
+  }
+
+  /* ---------- Service blocks ---------- */
+  .list {
+    border-top: 1px solid var(--line);
+  }
+
+  .service {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(3rem, 7vw, 5.5rem);
+    scroll-margin-top: var(--header-h);
+  }
+
+  .service + .service {
+    border-top: 1px solid var(--line);
+  }
+
+  .service__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .service__num {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+  }
+
+  h2 {
+    margin-top: 1.5rem;
+    font-size: clamp(1.625rem, 1.25rem + 1.5vw, 2.375rem);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .service__long {
+    margin-top: 1.1rem;
+    color: var(--ink-2);
+    font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+    line-height: 1.6;
+    max-width: 34em;
+  }
+
+  .service__text h3 {
+    margin-top: 2rem;
+    font-weight: 500;
+  }
+
+  .includes {
+    display: grid;
+    gap: 0.85rem 1.75rem;
+    margin-top: 1rem;
+  }
+
+  .includes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9875rem;
+    line-height: 1.45;
+  }
+
+  .includes__mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: 0.05rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
+
+  .includes__mark :global(svg) {
+    width: 0.85rem;
+    height: 0.85rem;
+    stroke-width: 2.25;
+  }
+
+  /* Illustration next to the text; on phones it comes first, above the text. */
+  .art {
+    order: -1;
+    display: grid;
+    place-items: center;
+    align-self: center;
+    aspect-ratio: 3 / 2;
+    padding: 6% 10%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: linear-gradient(140deg, var(--media), var(--accent-soft));
+  }
+
+  .art :global(svg) {
+    max-height: 100%;
+  }
+
+  /* ---------- Working together ---------- */
+  .why {
+    border-top: 1px solid var(--line);
+  }
+
+  .why__grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .why__card {
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .why__card h3 {
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+    letter-spacing: -0.015em;
+  }
+
+  .why__card p {
+    margin-top: 0.5rem;
+    color: var(--ink-2);
+    font-size: 0.9625rem;
+    line-height: 1.55;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq {
+    display: grid;
+    gap: 1rem 4rem;
+  }
+
+  .faq__intro :global(.head) {
+    margin-bottom: 1rem;
+  }
+
+  .faq__link {
+    margin-top: 0.75rem;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--line);
+  }
+
+  details {
+    border-bottom: 1px solid var(--line);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.35rem 0;
+    font-size: 1.0625rem;
+    font-weight: 550;
+    cursor: pointer;
+    list-style: none;
+    transition: color 0.2s;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover {
+    color: var(--accent);
+  }
+
+  .faq__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--ink-2);
+    transition:
+      transform 0.3s var(--ease),
+      background 0.2s,
+      color 0.2s;
+  }
+
+  .faq__icon :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  details[open] .faq__icon {
+    transform: rotate(45deg);
+    background: var(--accent-soft);
+    border-color: transparent;
+    color: var(--accent-strong);
+  }
+
+  details p {
+    padding-bottom: 1.4rem;
+    max-width: 40em;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  /* ---------- Phones ---------- */
+  @media (max-width: 639px) {
+    .jump {
+      margin-top: 1.5rem;
+    }
+
+    .jump a {
+      padding: 0.45rem 0.8rem;
+      font-size: 0.8125rem;
+    }
+
+    /* The illustrations are decorative; on a phone they only add length. */
+    .art {
+      display: none;
+    }
+
+    .service {
+      padding-block: 2rem;
+      scroll-margin-top: calc(var(--header-h) - 1rem);
+    }
+
+    /* Icon beside the title; the running number stays on the right. */
+    .service__text {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 0.875rem;
+    }
+
+    .service__top {
+      display: contents;
+    }
+
+    .service__top .icon-tile {
+      grid-row: 1;
+      grid-column: 1;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 10px;
+    }
+
+    .service__top .icon-tile :global(svg) {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .service__num {
+      grid-row: 1;
+      grid-column: 3;
+      font-size: 0.8125rem;
+    }
+
+    h2 {
+      grid-row: 1;
+      grid-column: 2;
+      margin: 0;
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
+
+    .service__long,
+    .service__text h3,
+    .includes {
+      grid-column: 1 / -1;
+    }
+
+    .service__long {
+      margin-top: 0.875rem;
+      font-size: 0.9375rem;
+      line-height: 1.55;
+    }
+
+    .service__text h3 {
+      margin-top: 1.25rem;
+      font-size: 0.8125rem;
+    }
+
+    .includes {
+      gap: 0.55rem;
+      margin-top: 0.7rem;
+    }
+
+    .includes li {
+      gap: 0.6rem;
+      font-size: 0.875rem;
+    }
+
+    .includes__mark {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    .includes__mark :global(svg) {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    /* Working together: one panel with hairlines instead of four cards. */
+    .why__grid {
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .why__card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.875rem;
+      padding: 1rem;
+      border: 0;
+      border-radius: 0;
+      background: none;
+    }
+
+    .why__card + .why__card {
+      border-top: 1px solid var(--line);
+    }
+
+    .why__card .icon-tile {
+      grid-row: span 2;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 10px;
+    }
+
+    .why__card .icon-tile :global(svg) {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .why__card h3 {
+      margin-top: 0;
+      font-size: 0.9875rem;
+      line-height: 1.3;
+    }
+
+    .why__card p {
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    summary {
+      gap: 1rem;
+      padding: 1rem 0;
+      font-size: 0.9375rem;
+    }
+
+    .faq__icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    details p {
+      padding-bottom: 1.1rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+  }
+
+  /* ---------- Breakpoints ---------- */
+  @media (min-width: 640px) {
+    .includes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .why__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 960px) {
+    .service {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+      gap: clamp(3rem, 6vw, 5.5rem);
+    }
+
+    .art {
+      order: 0;
+    }
+
+    .service--flip .art {
+      order: -1;
+    }
+
+    .faq {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+      align-items: start;
+    }
+
+    .faq__intro {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .why__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,186 +1,348 @@
-import type { Project } from "@/types";
+import type { ImageMetadata } from 'astro';
+import type { L } from '@/i18n';
+
+export type Category = 'fullstack' | 'backend' | 'frontend' | 'web' | 'mobile' | 'other';
+
+/** product: built and owned end to end. client: work for a client. personal: side and open-source projects. */
+export type Kind = 'product' | 'client' | 'personal';
+
+export interface Project {
+  slug: string;
+  title: L;
+  summary: L;
+  body: L;
+  features: L<string[]>;
+  kind: Kind;
+  category: Category;
+  tags: string[];
+  year?: number;
+  /** Company the work was done at, shown on the card. */
+  company?: string;
+  /** The cover is a real screenshot and is shown inside a browser frame instead of being cropped. */
+  shot?: boolean;
+  github?: string;
+  live?: string;
+  /** Shown on the homepage, in this order. */
+  featured?: boolean;
+  /** Brand colour used to tint the background behind the screenshot. */
+  tint?: string;
+}
+
+// Cover images live in src/assets/projects and are named after the project slug.
+const covers = import.meta.glob<{ default: ImageMetadata }>('../assets/projects/*.{png,jpg,webp}', {
+  eager: true,
+});
+
+export function coverFor(slug: string): ImageMetadata {
+  const match = Object.entries(covers).find(([path]) =>
+    path.split('/').pop()!.startsWith(`${slug}.`),
+  );
+  if (!match) throw new Error(`No cover image found for project "${slug}"`);
+  return match[1].default;
+}
+
+// Product logos live in src/assets/logos as <slug>-dark.png (for light backgrounds) and <slug>-light.png.
+const logos = import.meta.glob<{ default: ImageMetadata }>('../assets/logos/*.png', { eager: true });
+
+export function logoFor(slug: string): { dark: ImageMetadata; light: ImageMetadata } | undefined {
+  const find = (variant: string) =>
+    Object.entries(logos).find(([path]) => path.endsWith(`/${slug}-${variant}.png`))?.[1].default;
+  const dark = find('dark');
+  const light = find('light');
+  return dark && light ? { dark, light } : undefined;
+}
+
+// Tags are written in English. Technology names stay as they are; descriptive tags get a Turkish label.
+const tagsTr: Record<string, string> = {
+  Finance: 'Finans',
+  'Real-time': 'Gerçek zamanlı',
+  Reporting: 'Raporlama',
+  'Medical devices': 'Tıbbi cihazlar',
+  'Excel export': 'Excel dışa aktarma',
+  'Role-based access': 'Rol bazlı yetki',
+  Booking: 'Rezervasyon',
+  'Admin panel': 'Yönetim paneli',
+  'Dynamic content': 'Dinamik içerik',
+  'Service requests': 'Servis talepleri',
+  Portfolio: 'Portföy',
+  Website: 'Web sitesi',
+  Responsive: 'Mobil uyumlu',
+  'Corporate website': 'Kurumsal web sitesi',
+  Microservices: 'Mikroservis',
+  Mobile: 'Mobil',
+};
+
+export function tagLabel(tag: string, lang: 'en' | 'tr'): string {
+  return lang === 'tr' ? (tagsTr[tag] ?? tag) : tag;
+}
 
 export const projects: Project[] = [
   {
-    slug: "capitalist-panel",
-    title: "Capitalist — ERP Finance Panel",
-    description:
-      "Advanced web-based reporting and finance dashboard fully integrated with Bay.t ERP for real-time profitability analysis and business intelligence.",
-    longDescription:
-      "A comprehensive finance and reporting panel built as a companion analytics layer on top of Bay.t ERP. Features real-time dashboard with revenue, orders, collections, and net cash flow metrics. Includes three-dimensional profitability analysis (product, customer, and invoice level), aging reports for overdue receivables, current account management, check/promissory note portfolio tracking, order monitoring, dispatch note integration, and sales rep performance tracking. All reports are exportable to PDF and Excel. Role-based access control ensures employees see only the data relevant to their role.",
-    image: "/images/projects/capitalist/1.PNG",
-    category: "fullstack",
-    tags: [".NET", "ERP", "Finance", "Real-time", "Reporting"],
+    slug: 'hi-travel-booking',
+    title: { en: 'Hi Travel Booking Platform', tr: 'Hi Travel Rezervasyon Platformu' },
+    summary: {
+      en: 'Travel marketplace for tours, hotels and villas across Türkiye, serving 10,000+ daily users.',
+      tr: "Türkiye genelinde tur, otel ve villa rezervasyonu sunan, günde 10.000'den fazla kullanıcıya hizmet veren seyahat platformu.",
+    },
+    body: {
+      en: 'hitravel.com.tr is a travel marketplace for tours, hotels and villas. The focus was search and booking performance: with CQRS, Redis caching and Elasticsearch, API responses came down to under 200 ms.',
+      tr: "hitravel.com.tr; tur, otel ve villa rezervasyonu sunan bir seyahat platformu. Odak noktası arama ve rezervasyon performansıydı: CQRS, Redis önbellekleme ve Elasticsearch ile API yanıt süreleri 200 ms'nin altına indi.",
+    },
+    features: {
+      en: [
+        'Core backend on .NET 8 with the CQRS pattern',
+        'Redis caching and Elasticsearch search for sub-200 ms responses',
+        'Booking flow optimization: 35% higher conversion rate',
+        'Stripe and PayPal payment integration',
+        'CI/CD automated with Azure DevOps',
+        'Responsive Angular / PWA components',
+      ],
+      tr: [
+        '.NET 8 ve CQRS deseniyle çekirdek backend',
+        '200 ms altı yanıt için Redis önbellekleme ve Elasticsearch arama',
+        'Rezervasyon akışı iyileştirmesi: dönüşüm oranında %35 artış',
+        'Stripe ve PayPal ödeme entegrasyonu',
+        'Azure DevOps ile otomatik CI/CD',
+        'Angular / PWA ile mobil uyumlu bileşenler',
+      ],
+    },
+    kind: 'client',
+    category: 'fullstack',
+    tags: ['.NET 8', 'CQRS', 'Redis', 'Elasticsearch', 'Angular', 'Azure DevOps'],
+    year: 2025,
+    live: 'https://hitravel.com.tr/tr',
+    shot: true,
     featured: true,
-    date: "2025-06-01",
+    tint: '#f07a2b',
   },
   {
-    slug: "hi-travel-booking",
-    title: "Hi Travel Booking Platform",
-    description:
-      "Full-featured travel booking platform for tours, hotels, and villas across Turkey — handling 10,000+ daily users with .NET 8, CQRS, Redis, and Elasticsearch.",
-    longDescription:
-      "Built the core backend for hitravel.com.tr, a travel marketplace serving 10,000+ daily users. Implemented CQRS pattern, Redis caching, and Elasticsearch for sub-200ms API responses. Integrated Stripe/PayPal payments and automated CI/CD via Azure DevOps.",
-    image: "/images/projects/hitravel/1.jpg",
-    category: "fullstack",
-    tags: [".NET 8", "CQRS", "Redis", "Elasticsearch", "Angular", "Azure DevOps"],
-    liveUrl: "https://hitravel.com.tr/tr",
+    slug: 'capitalist-panel',
+    title: { en: 'Capitalist — ERP Finance Panel', tr: 'Capitalist — ERP Finans Paneli' },
+    summary: {
+      en: 'A finance and reporting panel on top of Bay.t ERP: profitability, cash flow and receivables in real time.',
+      tr: 'Bay.t ERP üzerine kurulu finans ve raporlama paneli: kârlılık, nakit akışı ve alacaklar gerçek zamanlı.',
+    },
+    body: {
+      en: 'Capitalist is a Dotlantis product that turns ERP data into a live picture of the business. It sits on top of Bay.t ERP as an analytics layer and shows management turnover, profit, cash flow and receivables on one modern dashboard, while each employee sees only the data relevant to their role.',
+      tr: "Capitalist, ERP verisini işletmenin canlı bir görünümüne dönüştüren bir Dotlantis ürünü. Bay.t ERP'nin üzerine analiz katmanı olarak oturur; yönetime ciroyu, kârı, nakit akışını ve alacakları tek bir modern panelde gösterir, her çalışan ise yalnızca kendi rolüyle ilgili veriyi görür.",
+    },
+    features: {
+      en: [
+        'Dashboard with turnover, gross and net profit, net VAT, profit margins and period comparisons',
+        'Daily, weekly and monthly cash-flow charts across cash registers and bank accounts',
+        'Profitability analysis by product, customer and invoice',
+        'Current accounts with debt, credit and balance filters, plus maturity analysis',
+        'Cheque and promissory-note tracking; orders and dispatch notes',
+        'Sales rep performance tracking',
+        'In-panel support tickets with urgency levels',
+        'PDF and Excel export, role-based access, light and dark themes',
+      ],
+      tr: [
+        'Ciro, brüt ve net kâr, net KDV, kâr marjları ve dönem karşılaştırmaları içeren kontrol paneli',
+        'Kasa ve banka hesapları için günlük, haftalık ve aylık nakit akışı grafikleri',
+        'Ürün, müşteri ve fatura bazında kârlılık analizi',
+        'Borç, alacak ve bakiye filtreleriyle cari hesaplar; vade analizi',
+        'Çek ve senet takibi; sipariş ve irsaliye süreçleri',
+        'Satış temsilcisi performans takibi',
+        'Panel içinden aciliyet seviyeli destek talepleri',
+        'PDF ve Excel dışa aktarım, rol bazlı erişim, açık ve koyu tema',
+      ],
+    },
+    kind: 'product',
+    category: 'fullstack',
+    tags: ['.NET', 'ERP', 'Finance', 'Real-time', 'Reporting'],
+    year: 2025,
+    company: 'Dotlantis',
+    live: 'https://capitalist.dotlantis.com',
+    shot: true,
     featured: true,
-    date: "2025-02-01",
+    tint: '#3b6ff6',
   },
   {
-    slug: "ecommerce-microservices",
-    title: "E-Commerce Microservices Platform",
-    description:
-      "Scalable e-commerce platform built with ASP.NET Core featuring microservices architecture and payment integration.",
-    longDescription:
-      "A full-scale e-commerce platform designed with microservices architecture using ASP.NET Core. Each service — product catalog, order management, user authentication, and payment — runs independently in Docker containers. Implemented inter-service communication, centralized logging, and a responsive frontend for browsing products, managing carts, and processing orders.",
-    image: "/images/projects/e-commerce/1.png",
-    category: "fullstack",
-    tags: ["ASP.NET Core", "Microservices", "Docker", "HTML", "CSS"],
-    githubUrl: "https://github.com/emreylmz7/ECommerceApp",
+    slug: 'mono-uts',
+    title: { en: 'Mono ÜTS — Product Tracking Panel', tr: 'Mono ÜTS — Ürün Takip Sistemi Paneli' },
+    summary: {
+      en: "A single panel for managing ÜTS (Türkiye's medical device tracking system) notifications, queries and reports.",
+      tr: 'ÜTS (Ürün Takip Sistemi) bildirimlerini, sorgularını ve raporlarını tek yerden yönetmeyi sağlayan panel.',
+    },
+    body: {
+      en: 'Managing ÜTS processes means dispatch and receipt notifications, cancellations, queries and reports scattered across different places. Mono ÜTS brings the whole workflow into one fast, organized panel, so companies keep control of every movement of their medical devices and products.',
+      tr: "ÜTS süreçleri; verme ve alma bildirimleri, iptaller, sorgulamalar ve raporlar arasında dağılan, hataya açık bir iş. Mono ÜTS tüm bu akışı hızlı ve düzenli tek bir panelde toplar; firmalar tıbbi cihaz ve ürünlerinin her hareketini kontrol altında tutar.",
+    },
+    features: {
+      en: [
+        'Dashboard summarizing notifications, cancellations, pending and suspended transactions, failed notifications and products nearing expiry',
+        'Dispatch, receipt, consumer-dispatch and undefined-destination notifications, with their cancellations',
+        'Product, company and notification queries with full notification detail',
+        'Dispatch and receipt reports with Excel export',
+        'Multi-user company management with role-based permissions',
+        'License validity tracking with renewal reminders',
+        'Responsive interface with light and dark themes',
+      ],
+      tr: [
+        "Bildirimleri, iptalleri, bekleyen ve askıdaki işlemleri, başarısız bildirimleri ve SKT'si yaklaşan ürünleri özetleyen kontrol paneli",
+        'Verme, alma, tüketiciye verme ve tanımsız yere verme bildirimleri ile iptalleri',
+        'Ürün, firma ve bildirim sorgulama; her bildirimin tüm detayı',
+        "Verme ve alma raporları, Excel'e aktarım",
+        'Rol bazlı yetkilerle çok kullanıcılı şirket yönetimi',
+        'Lisans geçerliliği takibi ve yenileme hatırlatmaları',
+        'Açık ve koyu temalı, mobil uyumlu arayüz',
+      ],
+    },
+    kind: 'product',
+    category: 'fullstack',
+    tags: ['ÜTS', 'Medical devices', 'Reporting', 'Excel export', 'Role-based access'],
+    company: 'Dotlantis',
+    live: 'https://uts.dotlantis.com',
+    shot: true,
     featured: true,
-    date: "2024-10-24",
+    tint: '#0f8a76',
   },
   {
-    slug: "clean-architecture-setup",
-    title: "Clean Architecture Setup",
-    description:
-      "A modern Clean Architecture template — scalable, maintainable, and testable with .NET Aspire and Scalar.",
-    longDescription:
-      "A production-ready Clean Architecture template for .NET projects, designed to accelerate development with best practices baked in. Features layered separation (Domain, Application, Infrastructure, Presentation), CQRS with MediatR, FluentValidation, and .NET Aspire for orchestration. Includes Scalar for interactive API documentation, making it easy to explore and test endpoints out of the box.",
-    image: "/images/projects/clean architectuıre/b603d90e-5b52-44e9-9cd9-32aff1e8a7a5.png",
-    category: "backend",
-    tags: ["C#", ".NET", "Clean Architecture", "Aspire", "Scalar"],
-    githubUrl: "https://github.com/emreylmz7/CleanArchitectureSetup",
+    slug: 'pusula-tatil',
+    title: {
+      en: 'Pusula Tatil — Hotel & Holiday Booking Platform',
+      tr: 'Pusula Tatil — Otel ve Tatil Rezervasyon Platformu',
+    },
+    summary: {
+      en: 'End-to-end hotel booking platform: search and compare hotels, pick a room and pay online with 3D Secure.',
+      tr: 'Uçtan uca otel rezervasyon platformu: otel arama ve karşılaştırma, oda seçimi ve 3D Secure ile online ödeme.',
+    },
+    body: {
+      en: 'Pusula Tatil lets users search and compare thousands of hotels in seconds, choose a room and complete the reservation with secure online payment. It was built from the ground up at Dotlantis and is integrated with real payment and reservation systems.',
+      tr: "Pusula Tatil, kullanıcıların binlerce oteli saniyeler içinde arayıp karşılaştırmasını, oda seçmesini ve rezervasyonu güvenli online ödemeyle tamamlamasını sağlar. Dotlantis'te sıfırdan geliştirildi; gerçek ödeme ve rezervasyon sistemleriyle entegre çalışır.",
+    },
+    features: {
+      en: [
+        'Hotel search with destination autocomplete, dates, room count and guest ages in one form',
+        'Server-side filtering by price, facilities, board type, theme and campaign, with sorting and pagination',
+        'Hotel pages with rooms, photos, amenities and prices that also open from shared links',
+        'Step-by-step booking flow with guest details, discount coupons and agreement approvals, protected by route guards',
+        '3D Secure payment over NestPay with BIN-based card detection, regional installment rules and individual or corporate invoicing',
+        'Membership, user accounts, blog and legal pages in one product',
+        'Angular 18 standalone components with lazy-loaded pages, result caching and request deduplication',
+      ],
+      tr: [
+        'Bölge otomatik tamamlama, tarih, oda sayısı ve misafir yaşlarını tek formda toplayan otel arama',
+        'Fiyat, tesis özellikleri, pansiyon tipi, tema ve kampanyaya göre sunucu taraflı filtreleme; sıralama ve sayfalama',
+        'Oda, fotoğraf, olanak ve fiyatlarıyla otel sayfaları; paylaşılan bağlantıdan da açılır',
+        'Misafir bilgileri, indirim kuponları ve sözleşme onaylarıyla adım adım rezervasyon akışı; route guard korumalı',
+        'NestPay üzerinden 3D Secure ödeme: BIN ile kart tanıma, bölgeye göre taksit kuralları, bireysel ve kurumsal fatura',
+        'Üyelik, kullanıcı hesabı, blog ve yasal sayfalar tek üründe',
+        'Angular 18 standalone bileşenler; lazy-load sayfalar, sonuç önbelleği ve tekrarlanan isteklerin birleştirilmesi',
+      ],
+    },
+    kind: 'client',
+    category: 'fullstack',
+    tags: ['Angular 18', 'Angular Material', 'NestPay 3D Secure', 'TypeScript', 'Booking'],
+    company: 'Dotlantis',
+    live: 'https://pusulatatil.com',
+    shot: true,
     featured: true,
-    date: "2025-02-13",
+    tint: '#2f4fd8',
   },
   {
-    slug: "rabbitmq-order-app",
-    title: "RabbitMQ Order Processing",
-    description:
-      "Asynchronous order processing system using RabbitMQ within a microservices architecture.",
-    longDescription:
-      "An event-driven order processing system demonstrating asynchronous communication between microservices using RabbitMQ. When a customer places an order, the message is published to a queue and consumed by independent services for validation, inventory check, and fulfillment. Built with .NET and Docker, showcasing reliable message delivery, retry mechanisms, and decoupled service architecture.",
-    image: "/images/projects/rabbitmq/Gemini_Generated_Image_jur9iijur9iijur9s.png",
-    category: "backend",
-    tags: ["C#", ".NET", "RabbitMQ", "Microservices", "Docker"],
-    githubUrl: "https://github.com/emreylmz7/RabbitMQOrderApp",
-    featured: true,
-    date: "2024-10-24",
+    slug: 'ecommerce-microservices',
+    title: {
+      en: 'E-Commerce Microservices Platform',
+      tr: 'Mikroservis Tabanlı E-Ticaret Platformu',
+    },
+    summary: {
+      en: 'E-commerce platform on ASP.NET Core with independent services for catalog, orders, auth and payment.',
+      tr: 'Katalog, sipariş, kimlik doğrulama ve ödeme için bağımsız servislerden oluşan ASP.NET Core e-ticaret platformu.',
+    },
+    body: {
+      en: 'A full e-commerce platform designed with a microservices architecture on ASP.NET Core. Each service runs independently in its own Docker container, with a responsive storefront for browsing products, managing the cart and placing orders.',
+      tr: 'ASP.NET Core üzerinde mikroservis mimarisiyle tasarlanmış eksiksiz bir e-ticaret platformu. Her servis kendi Docker konteynerinde bağımsız çalışır; ürünlere göz atma, sepet yönetimi ve sipariş için mobil uyumlu bir mağaza arayüzü içerir.',
+    },
+    features: {
+      en: [
+        'Separate services for product catalog, order management, authentication and payment',
+        'Each service containerized with Docker',
+        'Inter-service communication and centralized logging',
+        'Responsive storefront with cart and checkout',
+      ],
+      tr: [
+        'Ürün kataloğu, sipariş yönetimi, kimlik doğrulama ve ödeme için ayrı servisler',
+        'Her servis Docker ile konteynerleştirildi',
+        'Servisler arası iletişim ve merkezi loglama',
+        'Sepet ve ödeme adımlarını içeren mobil uyumlu mağaza arayüzü',
+      ],
+    },
+    kind: 'personal',
+    category: 'fullstack',
+    tags: ['ASP.NET Core', 'Microservices', 'Docker', 'HTML', 'CSS'],
+    year: 2024,
+    github: 'https://github.com/emreylmz7/ECommerceApp',
   },
   {
-    slug: "erp-app-server",
-    title: "Modular ERP System",
-    description:
-      "Comprehensive ERP system demonstrating modular and scalable architecture with .NET Core.",
-    longDescription:
-      "A comprehensive ERP system built with .NET Core following Clean Architecture and modular design principles. Covers core business modules including inventory management, invoicing, customer relations, and reporting. Each module is self-contained with its own domain logic, making the system easy to extend. Uses MSSQL for data persistence and implements role-based access control for multi-user environments.",
-    image: "/images/projects/erp/7ad3390d-ea83-4098-9192-09e6d7313879.png",
-    category: "fullstack",
-    tags: ["C#", ".NET Core", "ERP", "MSSQL", "Clean Architecture"],
-    githubUrl: "https://github.com/emreylmz7/ERPAppServer",
-    featured: true,
-    date: "2024-12-12",
+    slug: 'clean-architecture-setup',
+    title: { en: 'Clean Architecture Setup', tr: 'Clean Architecture Setup' },
+    summary: {
+      en: 'A production-ready Clean Architecture template for .NET with CQRS, .NET Aspire and Scalar.',
+      tr: 'CQRS, .NET Aspire ve Scalar içeren, canlıya hazır .NET Clean Architecture şablonu.',
+    },
+    body: {
+      en: 'A starting template for .NET projects with best practices already in place, so a new project begins from a tested structure instead of an empty solution.',
+      tr: 'En iyi pratiklerin hazır geldiği bir .NET başlangıç şablonu; yeni proje boş bir solution yerine denenmiş bir yapıdan başlar.',
+    },
+    features: {
+      en: [
+        'Layered separation: Domain, Application, Infrastructure, Presentation',
+        'CQRS with MediatR and FluentValidation',
+        '.NET Aspire for orchestration',
+        'Scalar for interactive API documentation',
+      ],
+      tr: [
+        'Katmanlı ayrım: Domain, Application, Infrastructure, Presentation',
+        'MediatR ve FluentValidation ile CQRS',
+        'Orkestrasyon için .NET Aspire',
+        'Etkileşimli API dokümantasyonu için Scalar',
+      ],
+    },
+    kind: 'personal',
+    category: 'backend',
+    tags: ['C#', '.NET', 'Clean Architecture', 'Aspire', 'Scalar'],
+    year: 2025,
+    github: 'https://github.com/emreylmz7/CleanArchitectureSetup',
   },
   {
-    slug: "car-booking-app",
-    title: "Car Booking Rental App",
-    description:
-      "ASP.NET Core Web API for managing vehicle rentals with booking system and fleet management.",
-    longDescription:
-      "A vehicle rental management system built with ASP.NET Core Web API. Features include vehicle listing with availability filters, date-based booking with conflict detection, customer management, and fleet tracking. The backend exposes RESTful endpoints consumed by a frontend built with HTML/CSS. Uses MSSQL for storing vehicle, booking, and customer data with relational integrity.",
-    image: "/images/projects/carbook/mock01.5542508f46bf4454f376.png",
-    category: "fullstack",
-    tags: ["ASP.NET Core", "Web API", "HTML", "CSS", "MSSQL"],
-    githubUrl: "https://github.com/emreylmz7/CarBookingApp",
-    featured: false,
-    date: "2024-09-07",
-  },
-  {
-    slug: "elasticsearch-blog",
-    title: "Elasticsearch Blog API",
-    description:
-      "Minimal .NET 9 Web API for managing blog posts with Elasticsearch integration.",
-    longDescription:
-      "A minimal Web API built with .NET 9 that demonstrates full-text search capabilities using Elasticsearch. Supports creating, updating, and querying blog posts with fast, relevance-ranked search results. Implements Elasticsearch indexing strategies, custom analyzers, and fuzzy matching to deliver accurate search even with typos. Designed as a lightweight reference for integrating Elasticsearch into .NET projects.",
-    image: "/images/projects/elasticsearch/1cb8bbdc-f608-41b3-8f34-f5611e6a0997.png",
-    category: "backend",
-    tags: ["C#", ".NET 9", "Elasticsearch", "Minimal API"],
-    githubUrl: "https://github.com/emreylmz7/ElasticSearchBlog",
-    featured: false,
-    date: "2025-02-20",
-  },
-  {
-    slug: "iot-thermal-monitor",
-    title: "IoT Thermal Monitor",
-    description:
-      "IoT-based thermal monitoring system built with C# for real-time temperature data collection.",
-    longDescription:
-      "A real-time thermal monitoring system that collects temperature data from IoT sensors and visualizes it through a dashboard. Built with C#, the application handles continuous data streams, stores historical readings, and triggers alerts when temperatures exceed defined thresholds. Demonstrates working with hardware interfaces, real-time data processing, and time-series visualization.",
-    image: "/images/projects/iot-thermal/b17d2fee-5ae7-47f1-90fb-56448667151c.png",
-    category: "other",
-    tags: ["C#", "IoT", "Real-time", "Monitoring"],
-    githubUrl: "https://github.com/emreylmz7/IoT-Thermal-Monitor",
-    featured: false,
-    date: "2026-01-27",
-  },
-  {
-    slug: "ai-quiz-app",
-    title: "Quizify — AI Quiz App",
-    description:
-      "Interactive quiz app powered by Google Gemini 2.5 Flash AI with dynamic question generation, customizable topics, and performance analytics.",
-    longDescription:
-      "An AI-powered quiz application built with React 18 that leverages Google Gemini 2.5 Flash to dynamically generate multiple-choice questions on any topic. Users can choose from suggested topics or enter custom ones, select the number of questions (5, 10, or 15), and get instant feedback on each answer. Features include circular score indicators, detailed result summaries with performance analytics, and a modern dark-themed UI with glassmorphism styling. Fully responsive for both mobile and desktop.",
-    image: "/images/projects/quiz-app/mock03.fc140bf47495d99c7585.png",
-    category: "frontend",
-    tags: ["React 18", "Gemini AI", "Bootstrap 5", "JavaScript"],
-    githubUrl: "https://github.com/emreylmz7/AIQuizApp",
-    liveUrl: "https://letquizify.netlify.app",
-    featured: false,
-    date: "2024-11-26",
-  },
-  {
-    slug: "hotel-app",
-    title: "Hotel Management System",
-    description:
-      ".NET Core 7 hotel management API with customer management and room booking.",
-    longDescription:
-      "A hotel management system built with .NET Core 7 Web API for handling room reservations, guest check-in/check-out, and customer profiles. Features room availability checking with date-range queries, pricing management, and booking confirmation workflows. The API is consumed by a JavaScript frontend that provides an intuitive interface for both hotel staff and guests.",
-    image: "/images/projects/hotelapp/mock02.b7b671a0fdec3bff8141.png",
-    category: "fullstack",
-    tags: [".NET Core 7", "Web API", "JavaScript", "MSSQL"],
-    githubUrl: "https://github.com/emreylmz7/HotelApp",
-    featured: false,
-    date: "2024-09-07",
-  },
-  {
-    slug: "job-application-app",
-    title: "Job Application Platform",
-    description:
-      ".NET Core MVC and API-based platform for job listings and candidate management.",
-    longDescription:
-      "A job application platform built with .NET Core MVC and Web API where employers can post job listings and candidates can browse, filter, and apply. Features include job search with category and location filters, application tracking for candidates, and a management dashboard for employers to review applicants. Uses MSSQL for data storage with Entity Framework Core.",
-    image: "/images/projects/job-application/3c2ba033-89fc-4f7f-b501-0e182f2698da.png",
-    category: "fullstack",
-    tags: ["C#", ".NET Core MVC", "Web API", "MSSQL"],
-    githubUrl: "https://github.com/emreylmz7/JobApplicationApp",
-    featured: false,
-    date: "2024-09-07",
-  },
-  {
-    slug: "medical-dictionary",
-    title: "Medical Dictionary App",
-    description:
-      "Modern Android app for medical students to search and explore medical terms.",
-    longDescription:
-      "A native Android application built with Kotlin for medical students and healthcare professionals to quickly search and explore medical terminology. Features instant search with autocomplete, detailed term definitions with related terms, bookmarking for frequently referenced entries, and an offline-first architecture so content is accessible without an internet connection. Designed with Material Design principles for a clean, intuitive user experience.",
-    image: "/images/projects/medical-dictionary/0628f6a2-0f9d-43fb-81fe-e4a8816b9c0c.png",
-    category: "mobile",
-    tags: ["Kotlin", "Android", "Mobile", "UI/UX"],
-    githubUrl: "https://github.com/emreylmz7/MedicalDictionary",
-    featured: false,
-    date: "2025-01-08",
+    slug: 'medical-dictionary',
+    title: { en: 'Medical Dictionary App', tr: 'Tıp Sözlüğü Uygulaması' },
+    summary: {
+      en: 'Native Android app in Kotlin for medical students to search and explore medical terms.',
+      tr: 'Tıp öğrencilerinin tıbbi terimleri arayıp keşfetmesi için Kotlin ile geliştirilen Android uygulaması.',
+    },
+    body: {
+      en: 'A native Android application for medical students and healthcare professionals, designed with Material Design principles.',
+      tr: 'Tıp öğrencileri ve sağlık çalışanları için Material Design ilkeleriyle tasarlanmış yerel bir Android uygulaması.',
+    },
+    features: {
+      en: [
+        'Instant search with autocomplete',
+        'Detailed definitions with related terms',
+        'Bookmarks for frequently used entries',
+        'Offline-first: content is available without a connection',
+      ],
+      tr: [
+        'Otomatik tamamlamalı anlık arama',
+        'İlişkili terimlerle ayrıntılı tanımlar',
+        'Sık kullanılan terimler için yer imleri',
+        'Çevrimdışı öncelikli: içerik bağlantı olmadan da erişilebilir',
+      ],
+    },
+    kind: 'personal',
+    category: 'mobile',
+    tags: ['Kotlin', 'Android', 'Mobile', 'UI/UX'],
+    year: 2025,
+    github: 'https://github.com/emreylmz7/MedicalDictionary',
   },
 ];
+
+export const featuredProjects = projects.filter((p) => p.featured);
+export const professionalProjects = projects.filter((p) => p.kind !== 'personal');
+export const personalProjects = projects.filter((p) => p.kind === 'personal');
+
+export function getProject(slug: string): Project | undefined {
+  return projects.find((p) => p.slug === slug);
+}

@@ -1,0 +1,640 @@
+---
+import { Image } from 'astro:assets';
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/Icon.astro';
+import { type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { site } from '@/data/site';
+import { experiences, skillGroups, companyLogo } from '@/data/experience';
+import profile from '@/assets/profile.jpg';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+const principleIcons = ['layers', 'gauge', 'chat'] as const;
+---
+
+<Base lang={lang} title={ui.about.label} description={ui.about.paragraphs[0]}>
+  <div class="wrap">
+    <header class="page-head">
+      <p class="label">{ui.about.label}</p>
+      <h1>{ui.about.title}</h1>
+    </header>
+
+    <!-- Bio -->
+    <section class="bio">
+      <figure class="bio__photo">
+        <Image
+          src={profile}
+          alt={site.name}
+          width={800}
+          height={1000}
+          layout="constrained"
+          fit="cover"
+          position="top"
+          sizes="(min-width: 900px) 380px, 90vw"
+          loading="eager"
+          priority
+        />
+      </figure>
+      <div class="bio__text">
+        {ui.about.paragraphs.map((p, i) => <p class:list={{ lead: i === 0 }}>{p}</p>)}
+        <div class="bio__actions">
+          <a class="btn btn--primary" href={site.cv} download>
+            <Icon name="download" />
+            {ui.about.cv}
+          </a>
+          <a class="btn btn--ghost" href={site.linkedin} target="_blank" rel="noopener">
+            <Icon name="linkedin" />
+            LinkedIn
+          </a>
+          <a class="btn btn--ghost" href={site.github} target="_blank" rel="noopener">
+            <Icon name="github" />
+            GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Principles -->
+    <section class="block">
+      <h2 class="label block__label">{ui.about.principlesLabel}</h2>
+      <ul class="principles">
+        {
+          ui.about.principles.map((item, i) => (
+            <li data-reveal style={`--reveal-delay:${i * 80}ms`}>
+              <span class="icon-tile">
+                <Icon name={principleIcons[i]} />
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- Experience -->
+    <section class="block">
+      <h2 class="label block__label">{ui.about.experienceLabel}</h2>
+      <ol class="jobs">
+        {
+          experiences.map((job) => {
+            const logo = companyLogo(job.logo);
+            const current = /present/i.test(job.period.en);
+            const brand = logo ? (
+              <>
+                <Image class="brand__dark" src={logo.dark} alt={job.company} height={26} densities={[1, 2]} />
+                <Image class="brand__light" src={logo.light} alt={job.company} height={26} densities={[1, 2]} />
+              </>
+            ) : (
+              <span class="brand__text">{job.company}</span>
+            );
+            return (
+            <li class:list={['job', { 'job--current': current }]} data-reveal>
+              <div class="job__meta">
+                <p class="job__period">{job.period[lang]}</p>
+                <p class="label" lang="tr">{job.place}</p>
+              </div>
+              <div class="job__body">
+                <div class="job__brand">
+                  {job.url ? (
+                    <a class="brand" data-logo={job.logo} href={job.url} target="_blank" rel="noopener">
+                      {brand}
+                    </a>
+                  ) : (
+                    <span class="brand" data-logo={job.logo}>{brand}</span>
+                  )}
+                </div>
+                <h3>{job.role[lang]}</h3>
+                <p class="job__summary">{job.summary[lang]}</p>
+                <ul class="job__points">
+                  {job.points[lang].map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+                <ul class="tags">
+                  {job.stack.map((item) => (
+                    <li class="tag">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <!-- Education -->
+    <section class="block">
+      <h2 class="label block__label">{ui.about.educationLabel}</h2>
+      <div class="job job--edu">
+        <div class="job__meta">
+          <p class="job__period">{ui.about.education.period}</p>
+        </div>
+        <div class="job__body">
+          <h3>{ui.about.education.degree}</h3>
+          <p class="job__role">{ui.about.education.school}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="block">
+      <h2 class="label block__label">{ui.about.skillsLabel}</h2>
+      <dl class="skills">
+        {
+          skillGroups.map((group) => (
+            <div>
+              <dt>{group.title[lang]}</dt>
+              <dd>
+                <ul class="tags">
+                  {group.items.map((item) => (
+                    <li class="tag">{item}</li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page-head h1 {
+    font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+    line-height: 1.15;
+    max-width: 26ch;
+  }
+
+  .bio {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .bio__photo {
+    overflow: hidden;
+    max-width: 24rem;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: var(--media);
+  }
+
+  .bio__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+
+  .bio__text {
+    display: grid;
+    gap: 1.25rem;
+    align-content: start;
+    max-width: 40em;
+  }
+
+  .bio__text p:not(.lead) {
+    color: var(--ink-2);
+  }
+
+  .bio__text .lead {
+    color: var(--ink);
+  }
+
+  .bio__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .block {
+    margin-top: clamp(4rem, 9vw, 6.5rem);
+  }
+
+  .block__label {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .principles {
+    display: grid;
+    gap: 2rem;
+    padding-top: 2rem;
+  }
+
+  .principles h3 {
+    margin-top: 1.1rem;
+    font-size: 1.375rem;
+    letter-spacing: -0.02em;
+  }
+
+  .principles p {
+    margin-top: 0.6rem;
+    color: var(--ink-2);
+    font-size: 0.9875rem;
+    line-height: 1.55;
+  }
+
+  /* ---------- Experience timeline ---------- */
+  .jobs,
+  .job--edu {
+    margin-top: 2.5rem;
+  }
+
+  /* Phones: the line runs along the whole entry. */
+  .job {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+    padding: 0 0 3rem 1.75rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .job:last-child {
+    padding-bottom: 0.5rem;
+  }
+
+  .job::before,
+  .job__body::before {
+    position: absolute;
+    left: -6px;
+    top: 0.3rem;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--ink-3);
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .job::before {
+    content: '';
+  }
+
+  .job--current::before,
+  .job--current .job__body::before {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .job__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+  }
+
+  .job__period {
+    font-size: 0.9375rem;
+    font-weight: 550;
+  }
+
+  .job__brand {
+    display: flex;
+    align-items: center;
+    min-height: 1.75rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    transition: opacity 0.2s;
+  }
+
+  a.brand:hover {
+    opacity: 0.7;
+  }
+
+  .brand :global(img) {
+    width: auto;
+    height: 1.5rem;
+  }
+
+  /* Optical sizing: each wordmark has different proportions, so they get their own height. */
+  .brand[data-logo='dotlantis'] :global(img) {
+    height: 1.35rem;
+  }
+
+  .brand[data-logo='shipentegra'] :global(img) {
+    height: 2rem;
+  }
+
+  /* Dark artwork on light pages, light artwork on dark pages. */
+  .brand :global(.brand__light),
+  :global([data-theme='dark']) .brand :global(.brand__dark) {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .brand :global(.brand__light) {
+    display: block;
+  }
+
+  .brand__text {
+    font-size: 1.375rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+
+  .job h3 {
+    font-size: 1.375rem;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .job__brand + h3 {
+    margin-top: 0.9rem;
+  }
+
+  .job__role {
+    margin-top: 0.3rem;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+
+  .job__summary {
+    margin-top: 0.75rem;
+    max-width: 40em;
+    color: var(--ink-2);
+  }
+
+  .job__points {
+    display: grid;
+    gap: 0.5rem;
+    margin-block: 1rem 1.25rem;
+    max-width: 42em;
+    color: var(--ink-2);
+    font-size: 0.9625rem;
+  }
+
+  .job__points li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+
+  .job__points li::before {
+    content: '';
+    position: absolute;
+    left: 0.15rem;
+    top: 0.62em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .skills {
+    display: grid;
+  }
+
+  .skills > div {
+    display: grid;
+    gap: 0.75rem;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .skills dt {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: -0.015em;
+  }
+
+  /* Phones: a smaller photo and compact principles (icon beside the text). */
+  @media (max-width: 759px) {
+    .bio {
+      gap: 2rem;
+    }
+
+    .bio__photo {
+      max-width: 15rem;
+    }
+
+    .principles {
+      gap: 1.5rem;
+    }
+
+    .principles li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 1rem;
+    }
+
+    .principles .icon-tile {
+      grid-row: span 2;
+    }
+
+    .principles h3 {
+      margin-top: 0.1rem;
+      font-size: 1.125rem;
+    }
+
+    .principles p {
+      margin-top: 0.3rem;
+    }
+  }
+
+  /* Phones: smaller photo, type and spacing throughout. */
+  @media (max-width: 559px) {
+    .page-head h1 {
+      font-size: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .bio {
+      gap: 1.5rem;
+    }
+
+    .bio__photo {
+      max-width: 9rem;
+    }
+
+    .bio__text {
+      gap: 0.9rem;
+    }
+
+    .bio__text p:not(.lead) {
+      font-size: 0.9375rem;
+    }
+
+    .bio__actions {
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .bio__actions .btn {
+      flex: 1 1 auto;
+      min-height: 2.75rem;
+      padding: 0.55rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .bio__actions .btn:first-child {
+      width: 100%;
+    }
+
+    .block {
+      margin-top: 3rem;
+    }
+
+    .block__label {
+      padding-bottom: 0.75rem;
+    }
+
+    .principles {
+      gap: 1.25rem;
+      padding-top: 1.25rem;
+    }
+
+    .principles .icon-tile {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 10px;
+    }
+
+    .principles .icon-tile :global(svg) {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .principles h3 {
+      margin-top: 0;
+      font-size: 1rem;
+    }
+
+    .principles p {
+      font-size: 0.9rem;
+    }
+
+    .jobs,
+    .job--edu {
+      margin-top: 1.5rem;
+    }
+
+    .job {
+      gap: 0.5rem;
+      padding: 0 0 2rem 1.25rem;
+    }
+
+    .job__period {
+      font-size: 0.875rem;
+    }
+
+    .brand :global(img) {
+      height: 1.25rem;
+    }
+
+    .brand[data-logo='dotlantis'] :global(img) {
+      height: 1.1rem;
+    }
+
+    .brand[data-logo='shipentegra'] :global(img) {
+      height: 1.6rem;
+    }
+
+    .brand__text {
+      font-size: 1.125rem;
+    }
+
+    .job h3 {
+      font-size: 1.0625rem;
+    }
+
+    .job__brand + h3 {
+      margin-top: 0.6rem;
+    }
+
+    .job__role {
+      font-size: 0.9375rem;
+    }
+
+    .job__summary {
+      margin-top: 0.5rem;
+      font-size: 0.9375rem;
+    }
+
+    .job__points {
+      gap: 0.4rem;
+      margin-block: 0.75rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .job__points li {
+      padding-left: 1rem;
+    }
+
+    .skills > div {
+      gap: 0.6rem;
+      padding-block: 1rem;
+    }
+
+    .skills dt {
+      font-size: 0.9875rem;
+    }
+  }
+
+  @media (min-width: 760px) {
+    .principles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem;
+    }
+
+    .skills > div {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      gap: 2rem;
+      align-items: baseline;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .bio {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+      gap: clamp(3rem, 6vw, 5.5rem);
+      align-items: start;
+    }
+
+    /* Desktop: dates on the left, the line between dates and content. */
+    .job {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      gap: 0;
+      padding: 0;
+      border-left: 0;
+    }
+
+    .job::before {
+      content: none;
+    }
+
+    .job__meta {
+      flex-direction: column;
+      gap: 0.35rem;
+      padding-top: 0.05rem;
+    }
+
+    .job__body {
+      position: relative;
+      padding: 0 0 3.5rem 2.5rem;
+      border-left: 1px solid var(--line);
+    }
+
+    .job__body::before {
+      content: '';
+    }
+
+    .job:last-child .job__body {
+      padding-bottom: 0.5rem;
+    }
+  }
+</style>

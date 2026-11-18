@@ -1,0 +1,572 @@
+---
+import { Image } from 'astro:assets';
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/Icon.astro';
+import SectionHead from '@/components/SectionHead.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import Process from '@/components/Process.astro';
+import TechStrip from '@/components/TechStrip.astro';
+import { href, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { site } from '@/data/site';
+import { featuredProjects } from '@/data/projects';
+import { services } from '@/data/services';
+import profile from '@/assets/profile.jpg';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+const [leadProject, ...otherProjects] = featuredProjects;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: site.url,
+  email: `mailto:${site.email}`,
+  jobTitle: ui.hero.role,
+  description: ui.meta.description,
+  address: { '@type': 'PostalAddress', addressLocality: 'Antalya', addressCountry: 'TR' },
+  sameAs: [site.github, site.linkedin],
+  knowsAbout: ['Web development', 'Mobile app development', 'E-commerce', 'Custom software', 'ERP integration'],
+};
+---
+
+<Base lang={lang}>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- Hero: text on the left, portrait on the right. -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__main">
+        <p class="hero__hello">{ui.hero.greeting}</p>
+        <h1>{ui.hero.title}</h1>
+        <p class="lead hero__lead">{ui.hero.lead}</p>
+
+        <div class="hero__actions">
+          <a class="btn btn--primary" href={href(lang, '/contact')}>
+            {ui.hero.primary}
+            <Icon name="arrow-right" />
+          </a>
+          <a class="btn btn--ghost" href={href(lang, '/projects')}>{ui.hero.secondary}</a>
+        </div>
+
+        <ul class="hero__links">
+          <li>
+            <a href={site.github} target="_blank" rel="noopener">
+              <Icon name="github" />
+              GitHub
+            </a>
+          </li>
+          <li>
+            <a href={site.linkedin} target="_blank" rel="noopener">
+              <Icon name="linkedin" />
+              LinkedIn
+            </a>
+          </li>
+          <li>
+            <a href={site.cv} download>
+              <Icon name="download" />
+              CV
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <figure class="portrait">
+        <div class="portrait__frame">
+          <Image
+            src={profile}
+            alt={site.name}
+            width={720}
+            height={900}
+            layout="constrained"
+            fit="cover"
+            position="top"
+            sizes="(min-width: 900px) 352px, 60vw"
+            loading="eager"
+            priority
+          />
+        </div>
+      </figure>
+    </div>
+
+    <div class="wrap hero__tech">
+      <TechStrip label={ui.hero.stack} />
+    </div>
+  </section>
+
+  <!-- Selected work -->
+  <section class="section">
+    <div class="wrap">
+      <SectionHead title={ui.home.workTitle} linkHref={href(lang, '/projects')} linkLabel={ui.home.workAll} />
+      <div class="work">
+        {
+          leadProject && (
+            <div data-reveal>
+              <ProjectCard project={leadProject} lang={lang} wide />
+            </div>
+          )
+        }
+        <div class="work__row">
+          {
+            otherProjects.map((project, i) => (
+              <div data-reveal style={`--reveal-delay:${i * 80}ms`}>
+                <ProjectCard
+                  project={project}
+                  lang={lang}
+                  sizes="(min-width: 1300px) 390px, (min-width: 760px) 31vw, 84vw"
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section">
+    <div class="wrap">
+      <SectionHead
+        title={ui.home.servicesTitle}
+        linkHref={href(lang, '/services')}
+        linkLabel={ui.home.servicesAll}
+      />
+      <ul class="svc">
+        {
+          services.map((service) => (
+            <li data-reveal>
+              <a class="svc__card" href={`${href(lang, '/services')}#${service.id}`}>
+                <span class="icon-tile">
+                  <Icon name={service.icon} />
+                </span>
+                <h3>{service.title[lang]}</h3>
+                <p>{service.short[lang]}</p>
+                <Icon name="arrow-right" class="svc__go" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section">
+    <div class="wrap">
+      <SectionHead title={ui.home.processTitle} />
+      <Process lang={lang} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* Dot grid that fades out around the portrait. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(circle, var(--line) 1.25px, transparent 1.25px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 55% 75% at 80% 38%, #000 15%, transparent 72%);
+    mask-image: radial-gradient(ellipse 55% 75% at 80% 38%, #000 15%, transparent 72%);
+    pointer-events: none;
+  }
+
+  .hero__tech {
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .hero__hello {
+    margin-bottom: 1rem;
+    font-size: 1.0625rem;
+    font-weight: 550;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(2.125rem, 1.35rem + 3.1vw, 3.625rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    max-width: 18ch;
+  }
+
+  .hero__lead {
+    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    max-width: 32em;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    max-width: 30rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .hero__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink-2);
+    transition: color 0.2s;
+  }
+
+  .hero__links a:hover {
+    color: var(--accent);
+  }
+
+  .hero__links :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  /* Portrait with a soft accent panel offset behind it. */
+  .portrait {
+    position: relative;
+    order: -1;
+    width: min(12rem, 50vw);
+    margin-bottom: 0.25rem;
+  }
+
+  .portrait::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    transform: translate(0.9rem, 0.9rem);
+  }
+
+  .portrait__frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--media);
+  }
+
+  .portrait__frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+
+  /* Phones: the portrait becomes a small avatar beside the greeting, and the
+     rest of the hero tightens up so the first screen is not one long column. */
+  @media (max-width: 559px) {
+    .hero {
+      padding-block: 1.75rem 1.25rem;
+    }
+
+    .hero__grid {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 0 0.875rem;
+    }
+
+    /* Let the text blocks join the grid so the avatar can sit next to the greeting. */
+    .hero__main {
+      display: contents;
+    }
+
+    .portrait {
+      order: 0;
+      grid-row: 1;
+      grid-column: 1;
+      width: 3.25rem;
+      margin: 0;
+    }
+
+    .portrait::before {
+      display: none;
+    }
+
+    .portrait__frame {
+      aspect-ratio: 1;
+      border-radius: 50%;
+    }
+
+    .portrait__frame :global(img) {
+      object-position: 50% 12%;
+    }
+
+    .hero__hello {
+      grid-row: 1;
+      grid-column: 2;
+      margin: 0;
+      font-size: 0.9375rem;
+      line-height: 1.35;
+    }
+
+    h1,
+    .hero__lead,
+    .hero__actions,
+    .hero__links {
+      grid-column: 1 / -1;
+    }
+
+    h1 {
+      margin-top: 1.25rem;
+      font-size: 1.75rem;
+      line-height: 1.14;
+      letter-spacing: -0.022em;
+    }
+
+    .hero__lead {
+      margin-top: 0.875rem;
+      font-size: 1rem;
+    }
+
+    .hero__actions {
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .hero__actions .btn {
+      flex: 1 1 auto;
+      min-height: 2.75rem;
+      padding: 0.55rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .hero__links {
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .hero__tech {
+      margin-top: 2.25rem;
+    }
+
+    /* Services: one quiet list instead of six stacked cards. The selectors are
+       one step more specific than the base card rules further down. */
+    ul.svc {
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .svc li + li {
+      border-top: 1px solid var(--line);
+    }
+
+    .svc .svc__card {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 0.8rem 1rem;
+      border: 0;
+      border-radius: 0;
+      background: none;
+    }
+
+    .svc .svc__card:hover {
+      transform: none;
+    }
+
+    .svc .svc__card .icon-tile {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 10px;
+    }
+
+    .svc .svc__card .icon-tile :global(svg) {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .svc .svc__card h3 {
+      flex: 1;
+      margin: 0;
+      font-size: 0.9375rem;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .svc .svc__card p {
+      display: none;
+    }
+
+    .svc .svc__card :global(.svc__go) {
+      display: block;
+      flex: none;
+      width: 1rem;
+      height: 1rem;
+      color: var(--ink-3);
+      transition:
+        color 0.2s,
+        transform 0.25s var(--ease);
+    }
+
+    .svc .svc__card:hover :global(.svc__go) {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .svc .svc__card:hover h3 {
+      color: var(--accent);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      align-items: center;
+      gap: clamp(3rem, 6vw, 5.5rem);
+    }
+
+    .portrait {
+      order: 0;
+      width: 100%;
+      margin-bottom: 0;
+    }
+
+    .portrait::before {
+      transform: translate(1.1rem, 1.1rem);
+    }
+  }
+
+  /* ---------- Work ---------- */
+  .work {
+    display: grid;
+    gap: clamp(3rem, 5vw, 4rem);
+  }
+
+  .work__row {
+    display: grid;
+    gap: 3rem 1.75rem;
+  }
+
+  @media (min-width: 760px) {
+    .work__row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Phones and small tablets: the projects become a swipeable row that bleeds to
+     the screen edges, with the next card peeking in, instead of one tall column. */
+  @media (max-width: 759px) {
+    .work {
+      display: flex;
+      gap: 0.75rem;
+      margin-inline: calc(-1 * var(--gutter));
+      padding: 0 var(--gutter) 0.25rem;
+      overflow-x: auto;
+      /* Only sideways: the reveal animation's offset must not make the row scroll up and down. */
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+    }
+
+    .work::-webkit-scrollbar {
+      display: none;
+    }
+
+    .work__row {
+      display: contents;
+    }
+
+    .work [data-reveal] {
+      flex: 0 0 min(84%, 22rem);
+      scroll-snap-align: start;
+    }
+  }
+
+  /* ---------- Services ---------- */
+  .svc {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .svc li {
+    display: flex;
+  }
+
+  .svc__card {
+    display: block;
+    flex: 1;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    transition:
+      border-color 0.25s,
+      transform 0.25s var(--ease);
+  }
+
+  .svc__card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+
+  /* The trailing arrow is only used by the compact phone list. */
+  .svc__card :global(.svc__go) {
+    display: none;
+  }
+
+  .svc h3 {
+    margin-top: 1.25rem;
+    font-size: 1.1875rem;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    transition: color 0.2s;
+  }
+
+  .svc p {
+    margin-top: 0.5rem;
+    color: var(--ink-2);
+    font-size: 0.9875rem;
+    line-height: 1.55;
+  }
+
+
+  @media (min-width: 640px) {
+    .svc {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .svc {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

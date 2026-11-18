@@ -1,0 +1,125 @@
+---
+import Icon from './Icon.astro';
+import Illustration from './Illustration.astro';
+import { href, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { site } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const ui = t(lang);
+---
+
+<section class="wrap cta-wrap">
+  <div class="cta-band" data-reveal>
+    <div class="cta-band__main">
+      <h2>{ui.cta.title}</h2>
+      <p class="cta-band__text">{ui.cta.text}</p>
+      <div class="cta-band__actions">
+        <a class="btn btn--primary" href={href(lang, '/contact')}>
+          {ui.cta.button}
+          <Icon name="arrow-right" />
+        </a>
+        <p class="cta-band__mail">
+          {ui.cta.or}{' '}
+          <a class="link" href={`mailto:${site.email}`}>{site.email}</a>
+        </p>
+      </div>
+    </div>
+    <div class="cta-band__art">
+      <Illustration name="message" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-wrap {
+    margin-top: clamp(3rem, 8vw, 7rem);
+  }
+
+  /* A preceding full section already ends with its own bottom padding. */
+  :global(.section) + .cta-wrap {
+    margin-top: 0;
+  }
+
+  .cta-band {
+    /* Illustration cards sit on the band, so they take the page colour. */
+    --illo-card: var(--bg);
+    display: grid;
+    gap: 2rem;
+    padding: clamp(1.75rem, 5vw, 3.5rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  h2 {
+    font-size: clamp(1.375rem, 1.05rem + 1.6vw, 2.5rem);
+    letter-spacing: -0.022em;
+    line-height: 1.12;
+  }
+
+  .cta-band__text {
+    margin-top: 0.75rem;
+    color: var(--ink-2);
+    max-width: 30em;
+  }
+
+  .cta-band__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.5rem;
+    margin-top: 1.75rem;
+  }
+
+  .cta-band__mail {
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+
+  .cta-band__art {
+    display: none;
+  }
+
+  @media (max-width: 559px) {
+    .cta-band {
+      padding: 1.5rem 1.25rem;
+    }
+
+    .cta-band__text {
+      margin-top: 0.6rem;
+      font-size: 0.9375rem;
+    }
+
+    .cta-band__actions {
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .cta-band__actions .btn {
+      width: 100%;
+      min-height: 2.75rem;
+      font-size: 0.875rem;
+    }
+
+    .cta-band__mail {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .cta-band {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .cta-band__art {
+      display: block;
+    }
+  }
+</style>

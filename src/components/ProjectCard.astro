@@ -1,0 +1,354 @@
+---
+import { Image } from 'astro:assets';
+import ProjectMedia from './ProjectMedia.astro';
+import Icon from './Icon.astro';
+import { href, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { logoFor, tagLabel, type Project } from '@/data/projects';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  /** Load the image eagerly (above the fold). */
+  eager?: boolean;
+  /** Image `sizes` hint; defaults to a two-column grid. */
+  sizes?: string;
+  /** Lead card: image and text side by side, with logo, stack and a link. */
+  wide?: boolean;
+  /** On phones: a compact row with a small image beside the text (projects page). */
+  row?: boolean;
+}
+
+const {
+  project,
+  lang,
+  eager = false,
+  wide = false,
+  row = false,
+  sizes = wide
+    ? '(min-width: 1300px) 700px, (min-width: 900px) 56vw, (min-width: 760px) 100vw, 84vw'
+    : '(min-width: 1300px) 590px, (min-width: 640px) 46vw, 100vw',
+} = Astro.props;
+const ui = t(lang);
+const logo = wide ? logoFor(project.slug) : undefined;
+
+// Up to three tags that still fit on one line of a small card.
+const cardTags: string[] = [];
+let used = 0;
+for (const tag of project.tags.map((t) => tagLabel(t, lang))) {
+  if (cardTags.length === 3 || used + tag.length > 28) break;
+  cardTags.push(tag);
+  used += tag.length;
+}
+
+// Products and client work are labelled by what they are; personal projects by their type.
+const label =
+  project.kind === 'personal'
+    ? [ui.projects.categories[project.category], project.year]
+    : [ui.projects.kinds[project.kind], project.company ?? project.year];
+---
+
+<a class:list={['card', { 'card--wide': wide, 'card--row': row }]} href={href(lang, `/projects/${project.slug}`)}>
+  <ProjectMedia project={project} sizes={sizes} eager={eager} />
+  <div class="card__body">
+    {
+      logo && (
+        <div class="card__logo">
+          <Image class="logo__dark" src={logo.dark} alt="" height={32} densities={[1, 2]} />
+          <Image class="logo__light" src={logo.light} alt="" height={32} densities={[1, 2]} />
+        </div>
+      )
+    }
+    <p class="label">{label.filter(Boolean).join(' · ')}</p>
+    <h3>{project.title[lang]}</h3>
+    <p class="card__summary">{project.summary[lang]}</p>
+    {
+      !wide && (
+        <ul class="tags card__tags card__tags--end">
+          {cardTags.map((tag) => (
+            <li class="tag">{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+    {
+      wide && (
+        <>
+          <ul class="tags card__tags">
+            {project.tags.slice(0, 4).map((tag) => (
+              <li class="tag">{tagLabel(tag, lang)}</li>
+            ))}
+          </ul>
+          <span class="card__more">
+            {ui.projects.view}
+            <Icon name="arrow-right" />
+          </span>
+        </>
+      )
+    }
+  </div>
+</a>
+
+<style>
+  /* Every card sits in the same framed surface; cards in a row share one height. */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    height: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: inherit;
+    transition: border-color 0.25s;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+  }
+
+  .card:hover :global(.media__fill) {
+    transform: scale(1.035);
+  }
+
+  .card:hover :global(.frame) {
+    transform: translateY(-5px);
+  }
+
+  .card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.25rem 0.5rem 0.5rem;
+  }
+
+  /* Tags of the smaller cards line up at the bottom. */
+  .card__tags.card__tags--end {
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+
+  h3 {
+    margin-top: 0.5rem;
+    font-size: 1.3125rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    transition: color 0.2s;
+  }
+
+  .card:hover h3 {
+    color: var(--accent);
+  }
+
+  .card__summary {
+    margin-top: 0.5rem;
+    color: var(--ink-2);
+    font-size: 0.9875rem;
+    line-height: 1.5;
+  }
+
+  /* ---------- Lead card ---------- */
+  .card--wide .card__body {
+    padding: 0.5rem 0.75rem 1rem;
+  }
+
+  .card--wide h3 {
+    font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2rem);
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+  }
+
+  .card--wide .card__summary {
+    margin-top: 0.85rem;
+    font-size: 1.0625rem;
+    max-width: 30em;
+  }
+
+  .card__logo {
+    margin-bottom: 1.25rem;
+  }
+
+  .card__logo :global(img) {
+    width: auto;
+    height: 1.75rem;
+  }
+
+  .card__logo :global(.logo__light),
+  :global([data-theme='dark']) .card__logo :global(.logo__dark) {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .card__logo :global(.logo__light) {
+    display: block;
+  }
+
+  .card__tags {
+    margin-top: 1.5rem;
+  }
+
+  .card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.75rem;
+    font-weight: 550;
+    color: var(--ink);
+    transition: color 0.2s;
+  }
+
+  .card__more :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .card--wide:hover .card__more {
+    color: var(--accent);
+  }
+
+  .card--wide:hover .card__more :global(svg) {
+    transform: translateX(4px);
+  }
+
+  /* Phones: smaller type and padding; the lead card matches the others so they
+     sit evenly in the swipeable row on the homepage. */
+  @media (max-width: 759px) {
+    .card {
+      gap: 0.85rem;
+      padding: 0.5rem;
+    }
+
+    .card__body,
+    .card--wide .card__body {
+      padding: 0.1rem 0.5rem 0.6rem;
+    }
+
+    h3,
+    .card--wide h3 {
+      margin-top: 0.35rem;
+      font-size: 1.125rem;
+      letter-spacing: -0.018em;
+      line-height: 1.25;
+    }
+
+    .card__summary,
+    .card--wide .card__summary {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      overflow: hidden;
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+    }
+
+    .card__logo {
+      margin-bottom: 0.75rem;
+    }
+
+    .card__logo :global(img) {
+      height: 1.35rem;
+    }
+
+    .card__tags {
+      margin-top: 1rem;
+    }
+
+    .card__tags.card__tags--end {
+      padding-top: 1rem;
+    }
+
+    /* Keep the lead card's tags on one line, like the other cards. */
+    .card--wide .tag:nth-child(n + 4) {
+      display: none;
+    }
+
+    .card__more {
+      margin-top: 1.1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Phones, projects page: image on the left, text beside it, no tags. */
+  @media (max-width: 559px) {
+    .card--row {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .card--row > :global(.media) {
+      flex: 0 0 7.25rem;
+      align-self: flex-start;
+      border-radius: 8px;
+    }
+
+    /* At thumbnail size the browser frame is too small to read; the screenshot fills the box instead. */
+    .card--row > :global(.media--shot) {
+      display: block;
+      padding: 0;
+    }
+
+    .card--row :global(.frame) {
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .card--row :global(.frame__bar) {
+      display: none;
+    }
+
+    .card--row :global(.frame img) {
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 0;
+    }
+
+    .card--row:hover :global(.frame) {
+      transform: none;
+    }
+
+    .card--row .card__body {
+      padding: 0.1rem 0.35rem 0.1rem 0;
+    }
+
+    .card--row .label {
+      font-size: 0.75rem;
+    }
+
+    .card--row h3 {
+      margin-top: 0.2rem;
+      font-size: 0.9875rem;
+      line-height: 1.3;
+    }
+
+    .card--row .card__summary {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      margin-top: 0.25rem;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+
+    .card--row .card__tags {
+      display: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .card--wide {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(2rem, 4vw, 3.5rem);
+    }
+
+    .card--wide .card__body {
+      padding: 1.5rem 1.5rem 1.5rem 0;
+    }
+  }
+</style>

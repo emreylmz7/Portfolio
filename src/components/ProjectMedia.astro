@@ -1,0 +1,127 @@
+---
+// Cover image of a project. Real screenshots are shown whole inside a small
+// browser frame; other covers fill the 3:2 box.
+import { Image } from 'astro:assets';
+import { coverFor, type Project } from '@/data/projects';
+
+interface Props {
+  project: Project;
+  alt?: string;
+  sizes: string;
+  eager?: boolean;
+  /** Detail-page size: larger source image and rounder corners. */
+  large?: boolean;
+}
+
+const { project, alt = '', sizes, eager = false, large = false } = Astro.props;
+const cover = coverFor(project.slug);
+const shot = project.shot === true;
+// Very tall screenshots are cut at the bottom so the frame stays inside the box.
+const ratio = shot ? Math.max(cover.width / cover.height, 1.75) : 1.5;
+const width = large ? 1800 : 1200;
+const height = Math.round(width / ratio);
+---
+
+<div
+  class:list={['media', { 'media--shot': shot, 'media--large': large }]}
+  style={project.tint ? `--tint:${project.tint}` : undefined}
+>
+  {
+    shot ? (
+      <div class="frame">
+        <div class="frame__bar" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+        <Image
+          src={cover}
+          alt={alt}
+          width={width}
+          height={height}
+          layout="constrained"
+          fit="cover"
+          position="top"
+          sizes={sizes}
+          loading={eager ? 'eager' : 'lazy'}
+          priority={eager}
+        />
+      </div>
+    ) : (
+      <Image
+        class="media__fill"
+        src={cover}
+        alt={alt}
+        width={width}
+        height={height}
+        layout="constrained"
+        fit="cover"
+        sizes={sizes}
+        loading={eager ? 'eager' : 'lazy'}
+        priority={eager}
+      />
+    )
+  }
+</div>
+
+<style>
+  .media {
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--media);
+  }
+
+  .media--large {
+    border-radius: var(--radius-lg);
+  }
+
+  .media :global(.media__fill) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s var(--ease);
+  }
+
+  /* Screenshot on a soft backdrop tinted with the project's brand colour (site accent by default). */
+  .media--shot {
+    --tint: var(--accent);
+    display: grid;
+    place-items: center;
+    padding: 7.5%;
+    background:
+      radial-gradient(120% 90% at 85% 100%, color-mix(in oklch, var(--tint) 24%, transparent), transparent 70%),
+      linear-gradient(150deg, var(--media), color-mix(in oklch, var(--tint) 10%, var(--media)));
+  }
+
+  .frame {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: 0 20px 40px -24px oklch(0.2 0.02 160 / 0.55);
+    transition: transform 0.6s var(--ease);
+  }
+
+  .frame__bar {
+    display: flex;
+    gap: 5px;
+    padding: 7px 9px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .frame__bar i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .frame :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

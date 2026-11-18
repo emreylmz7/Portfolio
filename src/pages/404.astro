@@ -1,0 +1,54 @@
+---
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/Icon.astro';
+import { ui } from '@/i18n/ui';
+---
+
+<Base lang="tr" title="404" noCta noindex translated={false} altHref="/en">
+  <section class="wrap nf">
+    <p class="label">404</p>
+    <h1>{ui.tr.notFound.title}</h1>
+    <p class="lead">{ui.tr.notFound.text}</p>
+    <a class="btn btn--primary" href="/">
+      {ui.tr.notFound.home}
+      <Icon name="arrow-right" />
+    </a>
+
+    <div class="nf__alt" lang="en">
+      <p>{ui.en.notFound.title} {ui.en.notFound.text}</p>
+      <a class="arrow-link" href="/en">
+        {ui.en.notFound.home}
+        <Icon name="arrow-right" />
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    padding-block: clamp(4rem, 12vw, 9rem) 2rem;
+  }
+
+  h1 {
+    margin-top: 1.25rem;
+    font-size: clamp(2.5rem, 1.4rem + 5vw, 5rem);
+    letter-spacing: -0.022em;
+    line-height: 1;
+    max-width: 14ch;
+  }
+
+  .lead {
+    margin-block: 1.5rem 2.25rem;
+  }
+
+  .nf__alt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+</style>

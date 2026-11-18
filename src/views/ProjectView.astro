@@ -1,0 +1,328 @@
+---
+import { Image } from 'astro:assets';
+import Base from '@/layouts/Base.astro';
+import Icon from '@/components/Icon.astro';
+import ProjectMedia from '@/components/ProjectMedia.astro';
+import { href, type Lang } from '@/i18n';
+import { t } from '@/i18n/ui';
+import { projects, logoFor, tagLabel, type Project } from '@/data/projects';
+
+interface Props {
+  lang: Lang;
+  project: Project;
+}
+
+const { lang, project } = Astro.props;
+const ui = t(lang);
+const index = projects.findIndex((p) => p.slug === project.slug);
+const next = projects[(index + 1) % projects.length];
+const logo = logoFor(project.slug);
+
+const kindLabel = project.kind === 'personal' ? undefined : ui.projects.kinds[project.kind];
+const label = [kindLabel ?? ui.projects.categories[project.category], project.company ?? project.year];
+---
+
+<Base lang={lang} title={project.title[lang]} description={project.summary[lang]}>
+  <article class="wrap">
+    <header class="page-head">
+      <a class="arrow-link back" href={href(lang, '/projects')}>
+        <Icon name="arrow-left" />
+        {ui.projects.back}
+      </a>
+      {
+        logo && (
+          <div class="logo">
+            <Image class="logo__dark" src={logo.dark} alt="" height={40} densities={[1, 2]} loading="eager" />
+            <Image class="logo__light" src={logo.light} alt="" height={40} densities={[1, 2]} loading="eager" />
+          </div>
+        )
+      }
+      <p class="label">{label.filter(Boolean).join(' · ')}</p>
+      <h1>{project.title[lang]}</h1>
+      <p class="lead">{project.summary[lang]}</p>
+    </header>
+
+    <div class="body">
+      <div class="body__main">
+        <ProjectMedia
+          project={project}
+          alt={project.title[lang]}
+          sizes="(min-width: 1300px) 760px, (min-width: 900px) 60vw, 94vw"
+          eager
+          large
+        />
+
+        <section>
+          <h2 class="label">{ui.projects.overview}</h2>
+          <p class="body__text">{project.body[lang]}</p>
+        </section>
+
+        <section>
+          <h2 class="label">{ui.projects.features}</h2>
+          <ul class="features">
+            {
+              project.features[lang].map((feature) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{feature}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+
+      <aside class="meta">
+        <dl>
+          {
+            project.company && (
+              <div>
+                <dt class="label">{ui.projects.company}</dt>
+                <dd>{project.company}</dd>
+              </div>
+            )
+          }
+          {
+            project.year && (
+              <div>
+                <dt class="label">{ui.projects.year}</dt>
+                <dd>{project.year}</dd>
+              </div>
+            )
+          }
+          <div>
+            <dt class="label">{ui.projects.type}</dt>
+            <dd>{ui.projects.categories[project.category]}</dd>
+          </div>
+          <div>
+            <dt class="label">{ui.projects.stack}</dt>
+            <dd>
+              <ul class="tags">
+                {project.tags.map((tag) => <li class="tag">{tagLabel(tag, lang)}</li>)}
+              </ul>
+            </dd>
+          </div>
+        </dl>
+        {
+          (project.live || project.github) && (
+            <div class="meta__links">
+              {project.live && (
+                <a class="btn btn--primary" href={project.live} target="_blank" rel="noopener">
+                  {ui.projects.live}
+                  <Icon name="arrow-up-right" />
+                </a>
+              )}
+              {project.github && (
+                <a class="btn btn--ghost" href={project.github} target="_blank" rel="noopener">
+                  <Icon name="github" />
+                  {ui.projects.source}
+                </a>
+              )}
+            </div>
+          )
+        }
+      </aside>
+    </div>
+
+    <a class="next" href={href(lang, `/projects/${next.slug}`)}>
+      <span class="label">{ui.projects.next}</span>
+      <span class="next__title">
+        {next.title[lang]}
+        <Icon name="arrow-right" />
+      </span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  .back {
+    margin-bottom: 2.5rem;
+    color: var(--ink-2);
+  }
+
+  .back:hover :global(svg) {
+    transform: translateX(-4px);
+  }
+
+  .page-head h1 {
+    max-width: 20ch;
+  }
+
+  /* Product logo: the dark artwork on light pages, the light artwork on dark pages. */
+  .logo {
+    margin-bottom: 1.5rem;
+  }
+
+  .logo :global(img) {
+    width: auto;
+    height: 2.25rem;
+  }
+
+  .logo :global(.logo__light),
+  :global([data-theme='dark']) .logo :global(.logo__dark) {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .logo :global(.logo__light) {
+    display: block;
+  }
+
+  .body {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .body__main {
+    display: grid;
+    gap: 3rem;
+    align-content: start;
+  }
+
+  .body__text {
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 0.92rem + 0.6vw, 1.375rem);
+    line-height: 1.5;
+    max-width: 34em;
+  }
+
+  .features {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .features li {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .features :global(svg) {
+    flex: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.2rem;
+    color: var(--accent);
+  }
+
+  .meta {
+    align-self: start;
+    padding: 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+
+  .meta dl {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .meta dd {
+    margin-top: 0.45rem;
+    font-weight: 550;
+  }
+
+  .meta .tags {
+    margin-top: 0.15rem;
+    font-weight: 400;
+  }
+
+  .meta__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .meta__links .btn {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .next {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+    padding-block: 2rem;
+    border-block: 1px solid var(--line);
+  }
+
+  .next__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.25rem, 0.95rem + 1.8vw, 2.5rem);
+    letter-spacing: -0.022em;
+    line-height: 1.1;
+    transition: color 0.2s;
+  }
+
+  .next__title :global(svg) {
+    flex: none;
+    width: 1.1em;
+    height: 1.1em;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .next:hover .next__title {
+    color: var(--accent);
+  }
+
+  .next:hover .next__title :global(svg) {
+    transform: translateX(8px);
+  }
+
+  /* Phones and tablets: details and the live-site button right after the screenshot,
+     before the longer text. */
+  @media (max-width: 899px) {
+    .body__main {
+      display: contents;
+    }
+
+    .body__main > :global(:first-child) {
+      order: 1;
+    }
+
+    .meta {
+      order: 2;
+      padding: 1.25rem;
+    }
+
+    .body__main > section {
+      order: 3;
+    }
+
+    .meta dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem 1.5rem;
+    }
+
+    .meta dl > div:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .meta__links {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .body {
+      grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 5.5rem);
+    }
+
+    .meta {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+</style>

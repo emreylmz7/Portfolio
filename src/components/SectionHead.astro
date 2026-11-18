@@ -1,0 +1,58 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Optional small text above the title. */
+  label?: string;
+  title: string;
+  linkHref?: string;
+  linkLabel?: string;
+}
+
+const { label, title, linkHref, linkLabel } = Astro.props;
+---
+
+<div class="head" data-reveal>
+  {label && <p class="label">{label}</p>}
+  <div class="head__row">
+    <h2>{title}</h2>
+    {
+      linkHref && linkLabel && (
+        <a class="arrow-link" href={linkHref}>
+          {linkLabel}
+          <Icon name="arrow-right" />
+        </a>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .head {
+    margin-bottom: clamp(1.25rem, 3.5vw, 2.75rem);
+  }
+
+  .head__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+
+  @media (max-width: 559px) {
+    .head__row .arrow-link {
+      font-size: 0.875rem;
+    }
+  }
+
+  .label + .head__row {
+    margin-top: 0.5rem;
+  }
+
+  h2 {
+    font-size: clamp(1.375rem, 1.1rem + 1.1vw, 2rem);
+    letter-spacing: -0.022em;
+    max-width: 26ch;
+  }
+</style>
