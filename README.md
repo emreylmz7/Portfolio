@@ -54,17 +54,15 @@ The form on `/contact` posts to [Formspree](https://formspree.io). The form ID i
 
 ## Deploying to Cloudflare Pages
 
-The site is the Pages project `vemreyilmaz` (https://vemreyilmaz.pages.dev). To publish a new version from this machine:
+The site is the Pages project `vemreyilmaz` (https://vemreyilmaz.pages.dev), served at vemreyilmaz.com.
+
+Every push to `master` publishes the site automatically: `.github/workflows/deploy.yml` installs, type-checks, builds and uploads `dist` with Wrangler. A failing check or build stops the deploy, so the live site stays on the last good version. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (an API token with the "Cloudflare Pages: Edit" permission) and `CLOUDFLARE_ACCOUNT_ID`. It can also be started by hand from the Actions tab.
+
+To publish from this machine instead:
 
 ```sh
 npm run build
 npx wrangler pages deploy dist --project-name vemreyilmaz --branch main
 ```
-
-If the site is connected to a Git repository in the Cloudflare dashboard later, use these build settings:
-
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Environment variable: `NODE_VERSION` = `24`
 
 `public/_headers` sets security and cache headers. `dist/404.html` is used automatically as the not-found page.
