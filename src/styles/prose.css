@@ -99,7 +99,7 @@
 .prose pre {
   padding: 1.25rem 1.4rem;
   border-radius: var(--radius);
-  border: 1px solid oklch(0.3 0.014 165);
+  border: 1px solid oklch(0.3 0.02 262);
   font-family: var(--font-mono);
   font-variant-ligatures: none;
   font-size: 0.875rem;

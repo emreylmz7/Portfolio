@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------
    Design tokens
-   Warm paper, soft green-black ink, one emerald accent. One typeface for
+   Warm paper, navy ink, one navy-blue accent. One typeface for
    headings and body keeps the pages calm; mono is used for code only.
 ------------------------------------------------------------------- */
 :root {
@@ -9,21 +9,21 @@
   --bg: oklch(0.972 0.007 95);
   --surface: oklch(0.993 0.004 95);
   --media: oklch(0.945 0.008 95);
-  --ink: oklch(0.2 0.015 160);
-  --ink-2: oklch(0.42 0.015 160);
-  --ink-3: oklch(0.53 0.012 160);
+  --ink: oklch(0.21 0.025 262);
+  --ink-2: oklch(0.42 0.02 262);
+  --ink-3: oklch(0.54 0.016 262);
   --line: oklch(0.885 0.01 100);
-  --accent: oklch(0.5 0.13 158);
-  --accent-strong: oklch(0.43 0.12 158);
-  --accent-soft: oklch(0.93 0.045 158);
+  --accent: oklch(0.47 0.16 262);
+  --accent-strong: oklch(0.4 0.147 262);
+  --accent-soft: oklch(0.93 0.045 262);
   --danger: oklch(0.52 0.19 27);
 
-  /* The inverted panel (CTA band, primary button). */
-  --inv-bg: oklch(0.2 0.015 160);
+  /* The inverted panel (primary button, logo mark). */
+  --inv-bg: oklch(0.21 0.03 262);
   --inv-ink: oklch(0.972 0.007 95);
-  --inv-ink-2: oklch(0.8 0.012 150);
-  --inv-line: oklch(0.34 0.015 160);
-  --inv-accent: oklch(0.82 0.16 158);
+  --inv-ink-2: oklch(0.8 0.012 262);
+  --inv-line: oklch(0.34 0.025 262);
+  --inv-accent: oklch(0.78 0.12 262);
 
   --font-body: 'Instrument Sans Variable', 'Segoe UI', system-ui, sans-serif;
   --font-display: var(--font-body);
@@ -40,23 +40,23 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --bg: oklch(0.2 0.008 170);
-  --surface: oklch(0.235 0.009 170);
-  --media: oklch(0.27 0.009 170);
-  --ink: oklch(0.92 0.006 100);
-  --ink-2: oklch(0.76 0.008 150);
-  --ink-3: oklch(0.66 0.008 150);
-  --line: oklch(0.31 0.009 170);
-  --accent: oklch(0.8 0.13 158);
-  --accent-strong: oklch(0.86 0.12 158);
-  --accent-soft: oklch(0.3 0.045 158);
+  --bg: oklch(0.2 0.014 262);
+  --surface: oklch(0.235 0.016 262);
+  --media: oklch(0.27 0.016 262);
+  --ink: oklch(0.93 0.006 255);
+  --ink-2: oklch(0.77 0.012 262);
+  --ink-3: oklch(0.66 0.012 262);
+  --line: oklch(0.32 0.016 262);
+  --accent: oklch(0.76 0.12 262);
+  --accent-strong: oklch(0.84 0.1 262);
+  --accent-soft: oklch(0.32 0.06 262);
   --danger: oklch(0.74 0.16 27);
 
-  --inv-bg: oklch(0.92 0.006 100);
-  --inv-ink: oklch(0.2 0.015 160);
-  --inv-ink-2: oklch(0.4 0.015 160);
-  --inv-line: oklch(0.82 0.01 100);
-  --inv-accent: oklch(0.45 0.13 158);
+  --inv-bg: oklch(0.93 0.006 255);
+  --inv-ink: oklch(0.21 0.03 262);
+  --inv-ink-2: oklch(0.4 0.02 262);
+  --inv-line: oklch(0.82 0.01 255);
+  --inv-accent: oklch(0.47 0.16 262);
 }
 
 /* ------------------------------------------------------------------
