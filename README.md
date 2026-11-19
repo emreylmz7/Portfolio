@@ -50,7 +50,11 @@ A post that exists in only one language still works; its language switch goes to
 
 ## Contact form
 
-The form on `/contact` posts to [Formspree](https://formspree.io). The form ID is `formspreeId` in `src/data/site.ts`.
+The form on `/contact` posts to `/api/contact`, a Cloudflare Pages Function in `functions/api/contact.ts`. It checks the [Turnstile](https://developers.cloudflare.com/turnstile/) bot check and forwards the message to [Formspree](https://formspree.io), which emails it. The Formspree form ID is never in the page, so bots cannot post to Formspree directly.
+
+- The public Turnstile site key is `turnstileSiteKey` in `src/data/site.ts`.
+- The Pages project needs two secrets: `TURNSTILE_SECRET_KEY` and `FORMSPREE_FORM_ID`.
+- To run the form locally, put both in a `.dev.vars` file (ignored by git) and run `npm run build && npx wrangler pages dev dist`. Cloudflare's test secret `1x0000000000000000000000000000000AA` always passes.
 
 ## Deploying to Cloudflare Pages
 

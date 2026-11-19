@@ -13,7 +13,8 @@ interface Props {
 
 const { lang } = Astro.props;
 const ui = t(lang);
-const action = `https://formspree.io/f/${site.formspreeId}`;
+// Sent to our own Pages Function, which checks Turnstile before it forwards the message.
+const action = '/api/contact';
 ---
 
 <Base lang={lang} title={ui.contact.label} description={ui.contact.lead} noCta>
@@ -62,6 +63,16 @@ const action = `https://formspree.io/f/${site.formspreeId}`;
           <textarea id="message" name="message" rows="7" placeholder={ui.contact.messagePlaceholder} required
           ></textarea>
           <p class="field__error" data-error-for="message" hidden>{ui.contact.required}</p>
+        </div>
+
+        <!-- Bot check. It stays invisible unless Cloudflare needs the visitor to click. -->
+        <div
+          class="cf-turnstile field--full is-idle"
+          data-turnstile
+          data-sitekey={site.turnstileSiteKey}
+          data-language={lang}
+          data-appearance="interaction-only"
+        >
         </div>
 
         <div class="form__foot field--full">
@@ -121,6 +132,8 @@ const action = `https://formspree.io/f/${site.formspreeId}`;
   </div>
 </Base>
 
+<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <script>
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
 
@@ -131,6 +144,12 @@ const action = `https://formspree.io/f/${site.formspreeId}`;
     const idleLabel = submitLabel.textContent ?? '';
     const message = (key: 'success' | 'error') =>
       form.querySelector<HTMLTemplateElement>(`[data-msg-${key}]`)?.content.textContent?.trim() ?? '';
+
+    // Put the bot check back into the layout once Cloudflare shows it.
+    const botCheck = form.querySelector<HTMLElement>('[data-turnstile]');
+    if (botCheck && 'ResizeObserver' in window) {
+      new ResizeObserver(() => botCheck.classList.toggle('is-idle', botCheck.offsetHeight === 0)).observe(botCheck);
+    }
 
     const fields = Array.from(
       form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('#name, #email, #message'),
@@ -182,6 +201,8 @@ const action = `https://formspree.io/f/${site.formspreeId}`;
         console.error('Contact form submission failed', error);
         show('error');
       } finally {
+        // A Turnstile token works once; get a fresh one for the next message.
+        (window as { turnstile?: { reset: () => void } }).turnstile?.reset();
         submit.disabled = false;
         submitLabel.textContent = idleLabel;
       }
@@ -293,6 +314,12 @@ const action = `https://formspree.io/f/${site.formspreeId}`;
   .field__error {
     font-size: 0.875rem;
     color: var(--danger);
+  }
+
+  /* The bot check is usually invisible. While it is, it sits outside the grid so it adds
+     no gap; the script puts it back in place when Cloudflare shows it. */
+  .cf-turnstile.is-idle {
+    position: absolute;
   }
 
   .form__foot {
